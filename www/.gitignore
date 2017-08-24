@@ -1,9 +1,0 @@
-node_modules/
-flycheck*
-bower_components
-.\#*
-\#*
-*~
-tags
-.tern-port
-build/
