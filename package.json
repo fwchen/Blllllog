@@ -1,0 +1,21 @@
+{
+  "name": "fw-blog",
+  "version": "1.0.0",
+  "description": "* My Z Blog",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cfangwei/cfangwei.github.io.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cfangwei/cfangwei.github.io/issues"
+  },
+  "homepage": "https://github.com/cfangwei/cfangwei.github.io#readme"
+}
