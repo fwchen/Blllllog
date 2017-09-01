@@ -1,0 +1,42 @@
+#+TITLE: 记一次 tcpdump 调试记录
+#+AUTHOR: 陳放為
+#+DATE: 2017-9-1
+
+今天在开始一个 react 千家桶项目的时候遇到了一个问题，就是 webpack 的 devServer proxy 代理后端 api 的时候，返回了一个后端 jutty 的 404 页面，但是单独打开又是好的。
+
+开了一个 mitmproxy 代理，好的，开了一个 mitmproxy 反向代理，坏的，当时以为是 header 的问题，粘了几个 header 之后没解决( 其实当时如果把所有 header 粘上去估计就好了 )。
+此时分析，之前的另一个项目也是 proxy api 啊，也没见什么问题，遂用 mitmproxy 方代了一下之前的 api，发现还是不行（此时我还是太年轻，不然早就发现了 header 的问题）
+
+于是我找了一个天气 api，mitmproxy 反代也是好的，这貌似误导了我，以为是后端的问题(其实冷静分析的话肯定不是后端的问题)，于是问了问老司机同事。
+
+同事用 tcpdump 调了一下
+
+#+BEGIN_SRC bash
+sudo tcpdump -i utun1 -A host xxx.xxx.com
+
+curl -i xxx.xxx.com/api/xxx
+#+END_SRC
+
+发现 header 的 host 为 localhost:7000
+遂
+#+BEGIN_SRC bash
+curl -i xxx.xxx.com/api/xxx -H 'host: localhost:7000'
+#+END_SRC
+
+404 错误又出现了，答案已经出来了
+原来是 header host 的问题，header 错了分发了不同的 virtual host。
+
+原来 virtual host 是通过 header 来判断的，长知识了。
+
+于是改了一下 webpack-dev-server 的配置
+#+BEGIN_SRC javascript
+proxy: {
+  '/api': {
+    target: 'http://fiadmin.paas.cmbchina.macdao.com',
+      changeOrigin: true
+    }
+  }
+#+END_SRC
+遂好
+完
+其实 mitmproxy 等代理工具也能调试出来，当时 tcpdump 真的略显高端
