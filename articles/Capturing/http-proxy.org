@@ -1,0 +1,29 @@
+#+TITLE: 代理调试
+#+AUTHOR: 陳放為
+#+DATE: 2017-9-1
+
+pac 文件
+#+BEGIN_SRC javascript
+function FindProxyForURL(url, host) {
+  // If the hostname matches, send direct.
+  if (dnsDomainIs(host, "octopus.com") || dnsDomainIs(host, "www.octopus.com"))
+    return "PROXY 127.0.0.1:8888";
+
+  if (dnsDomainIs(host, "rpi.ngrok.octopuese.xyz"))
+    return "PROXY 127.0.0.1:8888";
+
+  // if (shExpMatch(host, "*127.0.0.1*")) {
+  //   return "PROXY 127.0.0.1:8888";
+  // }
+
+  if (shExpMatch(url, "http://127.0.0.1:5500/api/*")) {
+    return "PROXY 127.0.0.1:8888";
+  }
+
+  // DEFAULT RULE: All other traffic, use below proxies, in fail-over order.
+  return "DIRECT";
+}
+#+END_SRC
+
+** example
+https://findproxyforurl.com/example-pac-file/
