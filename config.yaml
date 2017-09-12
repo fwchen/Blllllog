@@ -30,3 +30,8 @@ MAPPING:
   '@demo': '/demo/'
 
 LANG: 'zh-CN'
+
+SSR:
+  IGNORE:
+    - '^/demo'
+    - '/google281a0d5aa47339e0.html'
