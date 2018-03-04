@@ -1,8 +1,8 @@
 name: BLOG
 flow:
   - clean-nm: rm -rf node_modules/
-  - install: yarn install && git submodule init && git submodule update && cd @themes/hg && git checkout master && git pull origin master
-  - theme install: cd @themes/hg && yarn install
+  - install: yarn install --pure-lockfile && git submodule init && git submodule update && cd @themes/hg && git checkout master && git pull origin master
+  - theme install: cd @themes/hg && yarn install --pure-lockfile
   - theme build: cd @themes/hg && npm run build && npm run build-ssr
   - render: ./node_modules/.bin/starfish render .
   - ssrify: ./node_modules/.bin/starfish ssr .
