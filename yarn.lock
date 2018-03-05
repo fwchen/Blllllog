@@ -763,6 +763,10 @@ dashdash@^1.12.0:
   dependencies:
     assert-plus "^1.0.0"
 
+date-fns@^2.0.0-alpha.7:
+  version "2.0.0-alpha.7"
+  resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.0.0-alpha.7.tgz#245ad16f95764eababfb2c0a41fd5d033c20e57a"
+
 dateformat@^1.0.12:
   version "1.0.12"
   resolved "https://registry.yarnpkg.com/dateformat/-/dateformat-1.0.12.tgz#9f124b67594c937ff706932e4a642cca8dbbfee9"
@@ -1137,7 +1141,7 @@ glob-to-regexp@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/glob-to-regexp/-/glob-to-regexp-0.1.0.tgz#e0369d426578fd456d47dc23b09de05c1da9ea5d"
 
-glob@^7.0.3, glob@^7.0.5, glob@^7.1.2:
+glob@^7.0.0, glob@^7.0.3, glob@^7.0.5, glob@^7.1.2:
   version "7.1.2"
   resolved "https://registry.yarnpkg.com/glob/-/glob-7.1.2.tgz#c19c9df9a028702d678612384a6552404c636d15"
   dependencies:
@@ -1290,6 +1294,10 @@ inherits@2, inherits@2.0.3, inherits@^2.0.1, inherits@^2.0.3, inherits@~2.0.0, i
 ini@~1.3.0:
   version "1.3.4"
   resolved "https://registry.yarnpkg.com/ini/-/ini-1.3.4.tgz#0537cb79daf59b59a1a517dff706c86ec039162e"
+
+interpret@^1.0.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/interpret/-/interpret-1.1.0.tgz#7ed1b1410c6a0e0f78cf95d3b8440c63f78b8614"
 
 invariant@^2.2.2:
   version "2.2.2"
@@ -1685,9 +1693,9 @@ nobbb-parse-org@^1.0.1:
   dependencies:
     org "^0.2.0"
 
-nobbb-render-ajax@v1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/nobbb-render-ajax/-/nobbb-render-ajax-1.0.3.tgz#d45b0234c7d97fa851ab5e253224468a563330b6"
+nobbb-render-ajax@v1.0.8:
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/nobbb-render-ajax/-/nobbb-render-ajax-1.0.8.tgz#30ceeaadb1cf46c92c02bd0e21b6da68942282e5"
   dependencies:
     babel-preset-stage-1 "^6.24.1"
     ramda "^0.23.0"
@@ -1891,6 +1899,10 @@ path-is-absolute@^1.0.0, path-is-absolute@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/path-is-absolute/-/path-is-absolute-1.0.1.tgz#174b9268735534ffbc7ace6bf53a5a9e1b5c5f5f"
 
+path-parse@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/path-parse/-/path-parse-1.0.5.tgz#3c1adf871ea9cd6c9431b6ea2bd74a0ff055c4c1"
+
 path-to-regexp@0.1.7:
   version "0.1.7"
   resolved "https://registry.yarnpkg.com/path-to-regexp/-/path-to-regexp-0.1.7.tgz#df604178005f522f15eb4490e7247a1bfaa67f8c"
@@ -2044,6 +2056,12 @@ readdirp@^2.0.0:
     readable-stream "^2.0.2"
     set-immediate-shim "^1.0.1"
 
+rechoir@^0.6.2:
+  version "0.6.2"
+  resolved "https://registry.yarnpkg.com/rechoir/-/rechoir-0.6.2.tgz#85204b54dba82d5742e28c96756ef43af50e3384"
+  dependencies:
+    resolve "^1.1.6"
+
 redent@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/redent/-/redent-1.0.0.tgz#cf916ab1fd5f1f16dfb20822dd6ec7f730c2afde"
@@ -2115,6 +2133,12 @@ requires-port@1.x.x:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/requires-port/-/requires-port-1.0.0.tgz#925d2601d39ac485e091cf0da5c6e694dc3dcaff"
 
+resolve@^1.1.6:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/resolve/-/resolve-1.5.0.tgz#1f09acce796c9a762579f31b2c1cc4c3cddf9f36"
+  dependencies:
+    path-parse "^1.0.5"
+
 restore-cursor@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/restore-cursor/-/restore-cursor-2.0.0.tgz#9f7ee287f82fd326d4fd162923d62129eee0dfaf"
@@ -2184,6 +2208,14 @@ set-immediate-shim@^1.0.1:
 setprototypeof@1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/setprototypeof/-/setprototypeof-1.0.3.tgz#66567e37043eeb4f04d91bd658c0cbefb55b8e04"
+
+shelljs@^0.7.8:
+  version "0.7.8"
+  resolved "https://registry.yarnpkg.com/shelljs/-/shelljs-0.7.8.tgz#decbcf874b0d1e5fb72e14b164a9683048e9acb3"
+  dependencies:
+    glob "^7.0.0"
+    interpret "^1.0.0"
+    rechoir "^0.6.2"
 
 sigmund@~1.0.0:
   version "1.0.1"
@@ -2258,9 +2290,9 @@ sshpk@^1.7.0:
     jsbn "~0.1.0"
     tweetnacl "~0.14.0"
 
-starfish-cli@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/starfish-cli/-/starfish-cli-1.0.0.tgz#62618fb5821ef2a9983801f445842b0f3437b319"
+starfish-cli@^1.0.14:
+  version "1.0.14"
+  resolved "https://registry.yarnpkg.com/starfish-cli/-/starfish-cli-1.0.14.tgz#25616da5a4fd1ac1fc9d344a041e42387f96b882"
   dependencies:
     async "^2.0.0-rc.4"
     babel-cli "^6.24.1"
@@ -2290,15 +2322,16 @@ starfish-cli@^1.0.0:
     moment "^2.18.1"
     nobbb-parse-md "^1.0.1"
     nobbb-parse-org "^1.0.1"
-    nobbb-render-ajax v1.0.3
+    nobbb-render-ajax v1.0.8
     ora "^1.2.0"
     org "^0.2.0"
     ramda "^0.21.0"
-    starfish-command-ssr "^1.0.0"
+    shelljs "^0.7.8"
+    starfish-command-ssr "^1.0.7"
 
-starfish-command-ssr@^1.0.0:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/starfish-command-ssr/-/starfish-command-ssr-1.0.1.tgz#e4b6ebf9c05a1b9a0a0fcc762bc5856a4ebf3f89"
+starfish-command-ssr@^1.0.7:
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/starfish-command-ssr/-/starfish-command-ssr-1.0.7.tgz#85eb536ed41d40ada14c117f9aefa69d8c783431"
   dependencies:
     "@angular/animations" "^4.3.3"
     "@angular/common" "^4.3.3"
@@ -2309,6 +2342,7 @@ starfish-command-ssr@^1.0.0:
     "@angular/platform-server" "^4.3.3"
     "@angular/router" "^4.3.3"
     babel-preset-stage-1 "^6.24.1"
+    date-fns "^2.0.0-alpha.7"
     glob "^7.1.2"
     js-yaml "^3.9.1"
     ramda "^0.23.0"

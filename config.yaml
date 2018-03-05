@@ -9,7 +9,7 @@ BLOG:
   NAME: '陈放为的博客'
   DESC: 'And the Chamber of Secrets'
   TMPDIR: '/tmp'
-  TMPNAME: 'WIngTmp'
+  TMPNAME: 'WingTmp'
   PORT: 8080
   HOST: '127.0.0.1'
   INDEX_ARTICLE_NUMBER: 7
@@ -17,7 +17,7 @@ BLOG:
   ALL_PAGE_ARTICLE_NUMBER: 20
   SORT_ARTICLE_BY: 'create'
   ARTICLE_SUMMARY_CHAR_NUMBER: 300
-
+  
 STYLE:
   THEMEDIR: '@themes'
   THEME: 'hg'
