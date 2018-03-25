@@ -7,4 +7,4 @@ flow:
   - theme build: cd @themes/hg && npm run build && npm run build-ssr
   - render: ./node_modules/.bin/starfish render .
   - ssrify: ./node_modules/.bin/starfish angular-ssr .
-  - update site: rm -rf /var/www/blog > /dev/nul && cp -r build /var/www/blog
+  - update site: rm -rf /var/www/blog > null && cp -r build /var/www/blog
