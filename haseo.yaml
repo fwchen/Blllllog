@@ -6,5 +6,5 @@ flow:
   - theme install: cd @themes/hg && yarn install --pure-lockfile
   - theme build: cd @themes/hg && npm run build && npm run build-ssr
   - render: ./node_modules/.bin/starfish render .
-  - ssrify: ./node_modules/.bin/starfish ssr .
+  - ssrify: ./node_modules/.bin/starfish angular-ssr .
   - update site: rm -rf /var/www/blog > /dev/nul && cp -r build /var/www/blog
