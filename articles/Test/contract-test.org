@@ -4,6 +4,10 @@
 * 前端契约测试实践
 
 ** 契约测试
+*** 引子：
+    曾经在招行的招赢通，我们只要单元测试，虽有几套难产的 e2e 测试，自动化测试，但是明显不能 cover 所有的 case。
+    本来也什么，但是前端经历过几次重大 bug 之后，我似乎看透了什么。
+    [[./contract-test/eye.jpg]]
 
 ** 前端契约测试 
 *** 目的
@@ -19,9 +23,51 @@
 *** 项目实践
 **** mock api data
      传统的前端 api 测试的流程是，运行被测试代码，然后通过测试工具拦截发出的 http 请求，然后验证是否 url 和 body 等是否正确，最后返回在测试代码里面写死的返回数据，flush api 请求，验证业务代码的正确性。
-     而...
+     来着项目成员代码事例: (不喜勿喷）
+     #+BEGIN_SRC typescript
+  it(
+    'getCompanysSelectOption',
+    inject(
+      [InsureCompanyService, HttpTestingController],
+      (service: InsureCompanyService, httpMock: HttpTestingController) => {
+        let selectOption;
+
+        getContractResponse('company/companies/get ybt companies.json').then(response => {
+          const subscription = service.getCompanysSelectOption().subscribe(s => {
+            selectOption = s;
+          });
+
+          const request = httpMock.expectOne('/api/auth/companies');
+
+          assert.hasAllKeys(response[0], ['name', 'code']);
+
+          request.flush(response);
+          expect(request.request.method).toEqual('GET');
+          expect(selectOption[0]).toEqual({ id: '002', label: '泰康人寿' });
+
+          subscription.unsubscribe();
+        });
+        httpMock.verify();
+        }
+      )
+    );
+#+END_SRC
+
+
 
 *** 带来的问题
 **** 消费者驱动
      在前后端分离的开发模式中，后端无疑是产生者，而前端是消费者
-     但是前端
+     在契约驱动下的前后端分离开发，有了契约才能分离，定义好了契约，然后前端拿着契约开开心心的生成 mock service 去开发了；而后端也拿着契约写契约测试，开发 api 功能。
+     但是前端对契约进行了测试了之后，情况就发生了变化：
+     假设后端有了新需求，或者对接口进行重构，那么可能就会修改现有的接口，后端一旦把新的契约上传了，前端契约测试就会见红，正常情况下，红了就会去修。但是问题来了，假如后端的新需求或者重构没有空闲的前端资源响应，前端资源都在忙，并且专注于制品，那么情况就是：
+     所有前端都在忙，前端 CI 红了，发现不是自己弄挂的，ignore 掉，继续干活
+     然后 CI 红了大家都不 push 代码，等着别人来修
+     久久未绿，终于忍不住问了一下，反正都没有人弄挂，才发现是契约测试挂了
+     但是契约测试挂了也不是前端弄挂的啊，还是没有人修
+     直到热心人士的出现，才会有人修，但是这个修的过程特别费事，因为这不仅仅是契约测试挂了，这是因为需要来了或者后端接口变化，又要去了解需求和上下文，又要写代码去 cover 这些变化，实在是累活，又 block 住了原来的工作。
+     于是乎：
+     后端为了不影响前端，只能不接新需求，重构接口也必须等到有前端资源配合。
+     这就直接造成了消费者驱动模式，当然有些团队可能本来就很 match 消费者模式，但是有些团队就未必。
+     “前端必须比后端做得快。”
+     这就是消费者驱动的真实写照和要求。
