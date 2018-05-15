@@ -1,0 +1,26 @@
+#+TITLE: Date 序列化坑
+#+AUTHOR: 陳放為
+
+最近踩了一个坑:
+
+在 javascript 里，Date 对象如果被 JSON.stringify 序列化
+
+#+begin_src javascript
+JSON.stringif({date: new Date()})
+
+// "2012-12-31T16:00:00.000Z"
+#+end_src
+
+则会自动调用 toISOString 这个方法，而不是 toString 这个方法
+
+返回的时间则是国际 ISO 标准时间，比北京时间晚了8个小时
+
+诡异的是，同一台电脑，同一个浏览器，隔了几天结果还不一样，有时候返回的是 ISO 的北京时间
+
+遂推测：
+
+1. chrome 升级了，之前返回的是 ISO 北京时间
+2. chrome 会通过 time.asia 服务器设置的东东来判断(尚未验证)
+
+
+原因仍然未解，但是，以后千万别用 date 字符串跟后台传递时间，谨记！
