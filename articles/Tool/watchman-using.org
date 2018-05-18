@@ -1,0 +1,37 @@
+#+TITLE: Watchman-compile 使用
+#+AUTHOR: 陳放為
+
+当使用编译器的时候，修改完代码通常需要用编译器编译，再运行，用 facebook 的 watchman 可以完成自动检测编译的功能：
+
+以 typescript/babel 编译为例：
+
+#+begin_src bash
+watchman-make -p 'src/**/*.js' --make='npm run tocompile' -s 2 -t='./src'
+#+END_SRC
+
+其中
+#+begin_src bash
+npm run tocompile
+#+end_SRC
+
+是 npm 的编译命令
+
+-t='./src' 相当于命令后的参数
+
+以 golang 编译为例：
+
+#+begin_src bash
+watchman-make -p '**/*.go' --make='go build' -t "main.go"
+#+end_SRC
+
+意思就是检查当前目录下所有的 .go 文件，然后执行
+
+#+begin_src bash
+go build main.go
+#+end_SRC
+
+
+
+
+
+
