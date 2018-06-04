@@ -1,5 +1,7 @@
-#+TITLE: Ionic3 Ionic-angular 实践
+#+TITLE: Ionic3 ionic-angular 实践
 #+AUTHOR: 陳放為
+
+时值2018年中旬，有一个项目需要开发移动端 Web，框架已经被敲定 Angular，
 
 * Web Ionic3
 

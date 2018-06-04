@@ -1,0 +1,18 @@
+#+TITLE: UrlSearchParamsProblem坑
+#+AUTHOR: 陳放為
+
+项目中之前有一个实现，用了比较新的 api url-search-params ，考虑到不兼容的问题，用了一个 ployfill 库 
+
+https://github.com/WebReflection/url-search-params
+
+但是
+
+
+https://github.com/WebReflection/url-search-params/issues/32
+
+
+/file wave.js/
+#+begin_src javascript
+#+end_src
+
+
