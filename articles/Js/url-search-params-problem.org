@@ -1,18 +1,21 @@
 #+TITLE: UrlSearchParamsProblem坑
 #+AUTHOR: 陳放為
 
-项目中之前有一个实现，用了比较新的 api url-search-params ，考虑到不兼容的问题，用了一个 ployfill 库 
+项目中之前有一个实现，用了比较新的 api url-search-params ，考虑到不兼容的问题，用了一个 [[ployfill](https://github.com/WebReflection/url-search-params
+)] 库，一直运行了很久也没有发现问题
 
-https://github.com/WebReflection/url-search-params
+但是突然有一天生产上却发现了问题，排查了很久，最后发现后台参数传递中，某一个参数中多了一个空格，但是由于从这个参数是前端放在 header 里面传递的，log 上无法传递，而且前端无法复现，一直以为是后端的问题。
 
-但是
+一直深信是这个问题
 
+[[./url-search-params-problem/WechatIMG1603.jpeg]]
+
+但是排除了之后发现不是
+
+最后从 log 中发现，出现问题的机型都是 iOS10.3x，最后从 iOS10.3 中复现了，具体的原因应该是 iOS10.3 的 safari 刚实现了 UrlSearchParams 这个对象，有些 bug，在 10.3 以下的版本中没有测试出来是因为已经使用了 polyfill。
+
+同事还开了一条 issue 讨论了
 
 https://github.com/WebReflection/url-search-params/issues/32
 
-
-/file wave.js/
-#+begin_src javascript
-#+end_src
-
-
+共勉
