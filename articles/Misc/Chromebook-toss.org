@@ -2,8 +2,11 @@
 #+AUTHOR: 陳放為
 
 
-自从大学毕业之后很久都没有摸过 linux 桌面，一直心痒痒想买一台电脑装 linux 玩玩，但是一直又觉得已经又 Mac 了，买了只会吃灰浪费钱
+自从大学毕业之后很久都没有摸过 linux 桌面，一直心痒痒想买一台电脑装 linux 玩玩，但是一直又觉得已经又 Mac 了，买了只会吃灰浪费钱，于是乎买了一台 chromebook 过过手瘾。
 
+[[./Chromebook-toss/WechatIMG190.jpeg]]
+
+[[./Chromebook-toss/WechatIMG191.jpeg]]
 
 
 - iphone共享网络给 mac, mac开共享
