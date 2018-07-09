@@ -1,4 +1,7 @@
-<!--TITLE: Terminal Awesome tool-->
+title: Terminal Awesome tool
+tags:
+- chrome
+---
 
 这里收集一些 terminal 环境下非常有用的工具，不定时更新。
 
