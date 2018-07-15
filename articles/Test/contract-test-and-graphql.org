@@ -60,7 +60,7 @@
 在实践中，我们的前端后端没有刻意区分消费者和提供者的概念；我们也没有在前端直接 follow 后端契约测试那一套模式。我们测试了 GraphQL 的查询语句是否符合了 GraphQL 契约的定义，如下码：
 
 
-#+BEGIN_SRC
+#+BEGIN_SRC typescript
 
 /* some import */
 
@@ -112,9 +112,9 @@ query Query {
 3. 我们也先不谈是不是单元测试没有写好，毕竟不是每个单元测试都能写得那么完美和高大上
 #+END_QUOTE
 
-那么，我们在组件的测试中，也使用了契约的数据作为输入，先上码：
+那么，我们在组件的测试中，也使用了契约的数据作为输入，先上码：
 
-#+BEGIN_SRC
+#+BEGIN_SRC typescript
 const contract = getContract('api.json', 'should_do_action');
 
 const q$ = cold('--x|', { x: contract.response.json as SomeModel });
@@ -170,7 +170,7 @@ GraphQL 既是一种用于 API 的查询语言也是一个满足你数据查询�
 
 最后，我们的契约文件长下面的模样
 
-#+BEGIN_SRC
+#+BEGIN_SRC json
 {
     "description": "should_query_foos",
     "request": {
@@ -213,7 +213,7 @@ GraphQL 既是一种用于 API 的查询语言也是一个满足你数据查询�
 ** 放在单元测试里面还是新开一套测试?
 
 
-#+BEGIN_SRC
+#+BEGIN_SRC typescript
 
 /* some import */
 
