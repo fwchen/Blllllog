@@ -2593,6 +2593,10 @@ org@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/org/-/org-0.2.0.tgz#d76378387dc506fb8e3ccff73a0ad04e3afc6391"
 
+orgpr@^0.2.3:
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/orgpr/-/orgpr-0.2.4.tgz#0fa6d3df85a8034a7b9907e38a93119c833a25f5"
+
 os-homedir@^1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/os-homedir/-/os-homedir-1.0.2.tgz#ffbc4988336e0e833de0c168c7ef152121aa7fb3"
@@ -3019,7 +3023,7 @@ rimraf@2, rimraf@^2.2.8, rimraf@^2.5.1, rimraf@^2.6.1:
   dependencies:
     glob "^7.0.5"
 
-rimraf@^2.5.4:
+rimraf@^2.5.4, rimraf@^2.6.2:
   version "2.6.2"
   resolved "http://registry.npm.taobao.org/rimraf/download/rimraf-2.6.2.tgz#2ed8150d24a16ea8651e6d6ef0f47c4158ce7a36"
   dependencies:
@@ -3241,9 +3245,9 @@ stack-utils@^1.0.1:
   version "1.0.1"
   resolved "http://registry.npm.taobao.org/stack-utils/download/stack-utils-1.0.1.tgz#d4f33ab54e8e38778b0ca5cfd3b3afb12db68620"
 
-starfish-cli@1.1.4:
-  version "1.1.4"
-  resolved "http://registry.npm.taobao.org/starfish-cli/download/starfish-cli-1.1.4.tgz#2e43fdf9134e782815c7a9875e32e6e448c60a0e"
+starfish-cli@1.1.7:
+  version "1.1.7"
+  resolved "https://registry.yarnpkg.com/starfish-cli/-/starfish-cli-1.1.7.tgz#860d02861cd86369748a86fb8d2439d1c6e88221"
   dependencies:
     bluebird "^3.3.5"
     blueimp-md5 "^2.3.0"
@@ -3263,7 +3267,9 @@ starfish-cli@1.1.4:
     nobbb-parse-org "^1.0.1"
     ora "^1.2.0"
     org "^0.2.0"
+    orgpr "^0.2.3"
     ramda "^0.21.0"
+    rimraf "^2.6.2"
     shelljs "^0.7.8"
 
 static-extend@^0.1.1:
