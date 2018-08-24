@@ -1,0 +1,46 @@
+#+TITLE: 记一次 Chrome 无法取得证书链经过
+#+AUTHOR: 陳放為
+
+
+* 证书错误
+
+今天我用 Chromebook 打开我用 Let's Encrypt 签发 https 证书的一个网站，突然发现 Chrome 报证书错误。
+
+没啥头绪，查了一下参考的文章好像是证书链无法获取，看了一下也好像确实如此
+
+这是我用我的 MBP 查看的证书，证书链是有的
+
+[[image-url:./记一次 Chrome 无法取得证书链经过/41ecc0ab33cbdbc8e6cecccc0d973843]]
+
+
+下面是我的 Chromebook 的截图
+
+[[image-url:./记一次 Chrome 无法取得证书链经过/b3fad00791e5ed510e11d1310e00c455]]
+
+* 怎么解决的？
+过了一会自己好的，实属惭愧，聊记一笔
+
+
+* 可疑的点
+这里记几点，方便日后遇到相同的问题排查
+
+1. 在同一个服务器上的另一个站点昨天登上去的也是证书错误，然后今天好了，结合今天，可以推断出这个服务器上的证书一开始登录出问题，过一会儿就自动好
+
+2. 在其他设备上（包括 iPhone 和 Android）都是好的
+3. 在另一个服务期上网站正常（也是 Let's Encrypt 签发）
+
+#+BEGIN_QUOTE
+参考
+
+
+https://certificatechain.io/
+
+http://www.tangzongchao.com/2016/02/24/HTTPS%E4%B8%AD%E8%AF%81%E4%B9%A6%E9%93%BE%E4%B8%8D%E5%AE%8C%E6%95%B4%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/
+
+https://blog.csdn.net/u011130578/article/details/76246863
+
+https://www.jianshu.com/p/46e48bc517d0
+
+#+END_QUOTE
+
+
