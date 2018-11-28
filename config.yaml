@@ -4,8 +4,8 @@ AUTHOR:
 
 BLOG:
   BLOGDIR: 'articles'
+  HTTPS: true
   DOMAIN: 'blog.chenfangwei.xyz'
-  HTTPS: false
   NAME: '陈放为的博客'
   DESC: 'And the Chamber of Secrets'
   PORT: 8079
