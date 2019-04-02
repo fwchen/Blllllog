@@ -3,7 +3,7 @@ AUTHOR:
   GITHUB: 'fwchen'
 
 BLOG:
-  BLOGDIR: 'articles'
+  ARTICLES_DIR: 'articles'
   HTTPS: true
   DOMAIN: 'blog.chenfangwei.xyz'
   NAME: '陈放为的博客'
