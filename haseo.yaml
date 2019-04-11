@@ -1,8 +1,8 @@
 name: BLOG
 watch: true
 flow:
-  - install: yarn install --pure-lockfile && git submodule init && git submodule update && cd @themes/hg && git checkout master && git pull origin master
-  - theme install: cd @themes/hg && yarn install --pure-lockfile
+  - install: npm install && git submodule init && git submodule update && cd @themes/hg && git checkout master && git pull origin master
+  - theme install: cd @themes/hg && npm install
   - theme build: cd @themes/hg && npm run build && npm run build:ssr
   - render: ./node_modules/.bin/starfish render .
   - ssrify: ./node_modules/.bin/starfish angular-ssr .
