@@ -32,7 +32,7 @@ curl -i xxx.xxx.com/api/xxx -H 'host: localhost:7000'
 #+BEGIN_SRC javascript
 proxy: {
   '/api': {
-    target: 'http://fiadmin.paas.cmbchina.macdao.com',
+    target: 'http://fiadmin.macdao.com',
       changeOrigin: true
     }
   }
