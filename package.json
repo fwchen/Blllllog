@@ -1,10 +1,10 @@
 {
   "name": "fw-blog",
   "version": "1.0.0",
-  "description": "* My Z Blog",
+  "description": "My Z Blog",
   "main": "index.js",
   "dependencies": {
-    "@starfishx/theme-hg": "0.0.2",
+    "@starfishx/theme-hg": "0.0.3",
     "starfish-cli": "1.1.11"
   },
   "devDependencies": {},

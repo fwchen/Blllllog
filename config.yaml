@@ -18,8 +18,8 @@ BLOG:
   IGNORE_CATEGORY_RENDER: true
   
 STYLE:
-  THEMEDIR: '@themes'
-  THEME: 'hg'
+  THEMEDIR: 'node_modules/@starfishx'
+  THEME: 'theme-hg'
   THEME_CONFIG_FILE: 'theme.config.yaml'
 
 SERVE:
