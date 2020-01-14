@@ -7,46 +7,67 @@ pipeline {
         DOCKER_REGISTER = credentials('jenkins-blog-docker-register')
     }
     stages {
-        agent {
-            docker {
-                image 'node:12.14.0-stretch'
-            }
-        }
         stage('Npm install') {
+            agent {
+                docker {
+                    image 'node:12.14.0-stretch'
+                }
+            }
             steps {
                 sh 'npm install'
             }
         }
         stage('Theme install') {
+            agent {
+                docker {
+                    image 'node:12.14.0-stretch'
+                }
+            }
             steps {
                 sh 'cd node_modules/@starfishx/theme-hg && npm install'
             }
         }
         stage('Build') {
+            agent {
+                docker {
+                    image 'node:12.14.0-stretch'
+                }
+            }
             steps {
                 sh './node_modules/.bin/starfish render . --output="blog-dist"'
             }
         }
         stage('Build ssr') {
+            agent {
+                docker {
+                    image 'node:12.14.0-stretch'
+                }
+            }
             steps {
                 sh './node_modules/.bin/starfish angular-ssr .'
             }
         }
     }
     stages {
-        agent {
-            docker {
-                image 'docker:19.03.5'
-                args '-v /var/run/docker.sock:/var/run/docker.sock'
-            }
-        }
         stage('Dockerize') {
+            agent {
+                docker {
+                    image 'docker:19.03.5'
+                    args '-v /var/run/docker.sock:/var/run/docker.sock'
+                }
+            }
             steps {
                 sh "ls"
                 sh "docker build $DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER"
             }
         }
         stage('Publish image') {
+            agent {
+                docker {
+                    image 'docker:19.03.5'
+                    args '-v /var/run/docker.sock:/var/run/docker.sock'
+                }
+            }
             steps {
                 sh "docker push $DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER"
             }
