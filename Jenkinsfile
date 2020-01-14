@@ -32,16 +32,19 @@ pipeline {
             }
         }
         stage('Dockerize') {
-            agent {
-                label "master"
+            docker {
+                image 'docker:19.03.5'
+                args '-v /var/run/docker.sock:/var/run/docker.sock'
             }
             steps {
+                sh "ls"
                 sh "docker build $DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER"
             }
         }
         stage('Publish image') {
-            agent {
-                label "master"
+            docker {
+                image 'docker:19.03.5'
+                args '-v /var/run/docker.sock:/var/run/docker.sock'
             }
             steps {
                 sh "docker push $DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER"
