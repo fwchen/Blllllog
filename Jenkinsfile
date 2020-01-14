@@ -69,7 +69,7 @@ pipeline {
             steps {
                 sh 'docker push $DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER'
                 sh 'echo "$DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER" > .artifacts'
-                archiveArtifacts(artifacts: './.artifacts')
+                archiveArtifacts(artifacts: '.artifacts')
             }
         }
         stage('Remove image') {
