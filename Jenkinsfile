@@ -32,9 +32,11 @@ pipeline {
             }
         }
         stage('Dockerize') {
-            docker {
-                image 'docker:19.03.5'
-                args '-v /var/run/docker.sock:/var/run/docker.sock'
+            agent {
+                docker {
+                    image 'docker:19.03.5'
+                    args '-v /var/run/docker.sock:/var/run/docker.sock'
+                }
             }
             steps {
                 sh "ls"
@@ -42,9 +44,11 @@ pipeline {
             }
         }
         stage('Publish image') {
-            docker {
-                image 'docker:19.03.5'
-                args '-v /var/run/docker.sock:/var/run/docker.sock'
+            agent {
+                docker {
+                    image 'docker:19.03.5'
+                    args '-v /var/run/docker.sock:/var/run/docker.sock'
+                }
             }
             steps {
                 sh "docker push $DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER"
