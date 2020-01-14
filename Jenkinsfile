@@ -56,7 +56,7 @@ pipeline {
             }
             steps {
                 sh "ls"
-                sh "docker build . $DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER"
+                sh "docker build . -t $DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER"
             }
         }
         stage('Publish image') {
