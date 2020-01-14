@@ -1,5 +1,3 @@
 node_modules
-.tern-port
-build
+blog-dist
 npm-debug.log
-null
