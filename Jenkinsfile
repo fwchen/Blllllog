@@ -88,7 +88,7 @@ pipeline {
             rocketSend currentBuild.currentResult
         }
         success {
-            archiveArtifacts artifacts: './.artifacts'
+            archiveArtifacts(artifacts: './.artifacts')
         }
     }
 }
