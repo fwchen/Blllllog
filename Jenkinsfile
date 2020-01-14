@@ -47,8 +47,6 @@ pipeline {
                 sh './node_modules/.bin/starfish angular-ssr .'
             }
         }
-    }
-    stages {
         stage('Dockerize') {
             agent {
                 docker {
