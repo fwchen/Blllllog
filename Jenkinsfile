@@ -32,7 +32,11 @@ pipeline {
             }
         }
         stage('Dockerize') {
-            agent none
+            agent {
+                node {
+                    label "master"
+                }
+            }
             steps {
                 script {
                     dockerImage = docker.build "$DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER"
@@ -40,7 +44,11 @@ pipeline {
             }
         }
         stage('Publish image') {
-            agent none
+            agent {
+                node {
+                    label "master"
+                }
+            }
             steps {
                 script {
                     docker.withRegistry($DOCKER_REGISTER) {
