@@ -32,13 +32,21 @@ pipeline {
             }
         }
         stage('Dockerize') {
+            agent none
             steps {
-                sh 'docker build . -t ${DOCKER_REGISTER}/fangwei-blog:v0.0.${BUILD_NUMBER}'
+                script {
+                    dockerImage = docker.build "$DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER"
+                }
             }
         }
         stage('Publish image') {
+            agent none
             steps {
-                sh 'docker push ${DOCKER_REGISTER}/fangwei-blog:v0.0.${BUILD_NUMBER}'
+                script {
+                    docker.withRegistry($DOCKER_REGISTER) {
+                        dockerImage.push()
+                    }
+                }
             }
         }
     }
