@@ -67,7 +67,8 @@ pipeline {
                 }
             }
             steps {
-                sh "docker push $DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER"
+                sh 'docker push $DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER'
+                sh 'echo "$DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER" > .artifacts'
             }
         }
         stage('Remove image') {
@@ -85,6 +86,9 @@ pipeline {
     post {
         always {
             rocketSend currentBuild.currentResult
+        }
+        success {
+            archiveArtifacts artifacts: '.artifacts'
         }
     }
 }

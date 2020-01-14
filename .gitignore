@@ -1,3 +1,4 @@
 node_modules
 blog-dist
 npm-debug.log
+.artifacts
