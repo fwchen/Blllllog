@@ -67,7 +67,24 @@ pipeline {
                 }
             }
             steps {
-                sh "docker push $DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER"
+                script {
+                    docker.withServer('192.168.50.251:5000', 'bomv-docker-registry-certs') {
+                        docker.image("$DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER").push() {
+                            /* do things */
+                        }
+                    }
+                }
+            }
+        }
+        stage('Remove image') {
+            agent {
+                docker {
+                    image 'docker:19.03.5'
+                    args '-v /var/run/docker.sock:/var/run/docker.sock'
+                }
+            }
+            steps {
+                sh "docker rm image $DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER"
             }
         }
     }
