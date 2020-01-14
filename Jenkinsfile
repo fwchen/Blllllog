@@ -78,7 +78,7 @@ pipeline {
                 }
             }
             steps {
-                sh "docker rm image $DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER"
+                sh "docker image rm $DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER"
             }
         }
     }
