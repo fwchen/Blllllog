@@ -38,9 +38,7 @@ pipeline {
                 }
             }
             steps {
-                script {
-                    dockerImage = docker.build "$DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER"
-                }
+                sh "docker build $DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER"
             }
         }
         stage('Publish image') {
@@ -50,11 +48,7 @@ pipeline {
                 }
             }
             steps {
-                script {
-                    docker.withRegistry($DOCKER_REGISTER) {
-                        dockerImage.push()
-                    }
-                }
+                sh "docker push $DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER"
             }
         }
     }
