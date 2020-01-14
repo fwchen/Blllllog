@@ -120,7 +120,7 @@ openssl smime -decrypt -in ~/Downloads/db_bk.encrypt.sql -binary -inform DEM -in
 # 完善整个流程
 
 ## 每日备份的时候不覆盖
-通过 bash 的 `$(date +"%d-%m-%y")` 取到 yyyy-MM-DD 的日期字符串，加到备份语句中，这样如果每年进行备份的话，之前的不会被覆盖
+通过 bash 的 `$(date +"%d-%m-%y")` 取到 dd-MM-y 的日期字符串，加到备份语句中，这样如果每年进行备份的话，之前的不会被覆盖
 ``` bash
 echo -e "\nStart Time: $(date)\n" >> $backup_dir/Status.log
 DEM -out backup/db_bk_$(date +"%d-%m-%y").encrypt.sql /var/lib/postgresql/backup_key.pem.pub
