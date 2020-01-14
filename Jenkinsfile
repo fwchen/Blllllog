@@ -33,9 +33,7 @@ pipeline {
         }
         stage('Dockerize') {
             agent {
-                node {
-                    label "master"
-                }
+                label "master"
             }
             steps {
                 sh "docker build $DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER"
@@ -43,9 +41,7 @@ pipeline {
         }
         stage('Publish image') {
             agent {
-                node {
-                    label "master"
-                }
+                label "master"
             }
             steps {
                 sh "docker push $DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER"
