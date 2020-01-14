@@ -1,9 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'node:12.14.0-stretch'
-        }
-    }
+    agent none
     triggers {
         pollSCM('*/1 * * * *')
     }
@@ -11,6 +7,11 @@ pipeline {
         DOCKER_REGISTER = credentials('jenkins-blog-docker-register')
     }
     stages {
+        agent {
+            docker {
+                image 'node:12.14.0-stretch'
+            }
+        }
         stage('Npm install') {
             steps {
                 sh 'npm install'
@@ -31,25 +32,21 @@ pipeline {
                 sh './node_modules/.bin/starfish angular-ssr .'
             }
         }
-        stage('Dockerize') {
-            agent {
-                docker {
-                    image 'docker:19.03.5'
-                    args '-v /var/run/docker.sock:/var/run/docker.sock'
-                }
+    }
+    stages {
+        agent {
+            docker {
+                image 'docker:19.03.5'
+                args '-v /var/run/docker.sock:/var/run/docker.sock'
             }
+        }
+        stage('Dockerize') {
             steps {
                 sh "ls"
                 sh "docker build $DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER"
             }
         }
         stage('Publish image') {
-            agent {
-                docker {
-                    image 'docker:19.03.5'
-                    args '-v /var/run/docker.sock:/var/run/docker.sock'
-                }
-            }
             steps {
                 sh "docker push $DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER"
             }
