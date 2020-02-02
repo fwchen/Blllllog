@@ -10,3 +10,11 @@ date: 2020-02-02 18:54:02
 
 > 很多开源的软件跟企业里开发的软件有一点很大不一样的地方，在企业中开发一个软件，通常一些配置信息都会检入代码管理系统，例如通常有 `application-dev.yaml`，`config.ini` 这样东西，这些代码库都是私有的，所以也很安全，如果审查机制不严格，甚至会在代码中硬编码很多环境的信息，但是开源软件不一样，为了在前期获得更高的人气，软件的部署或使用会尽可能简单；在服务方面，或许开发企业应用会随意使用一个 redis 服务，但是在开源软件中，这以为使用者要部署一个 Redis，这无疑会加大了部署的难度和时间。
 
+``` typescript
+const domain = `www.google.com`;
+axios.get(`https://www.google.com/s2/favicons?domain=${domain}`, {
+    responseType: 'arraybuffer'
+  }).then(r => r.data);
+```
+
+然后直接保存
