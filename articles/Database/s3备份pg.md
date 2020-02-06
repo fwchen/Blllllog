@@ -149,7 +149,7 @@ echo -e "End Time: $(date)\n" >> $backup_dir/Status.log
 #Value 7 for retention_duration will keep 8 days backups
 
 retention_duration=7
-find $backup_dir/db_bk_* -type d -mtime +$retention_duration -exec rm -rv {} \;
+find $backup_dir/db_bk_* -type f -mtime +$retention_duration -exec rm -rv {} \;
 ```
 
 ## Crontab
