@@ -56,7 +56,7 @@ pipeline {
             }
             steps {
                 sh "ls"
-                sh "docker build . -t $DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER"
+                sh "docker build . -t $DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER -t $DOCKER_REGISTER/fangwei-blog:latest"
             }
         }
         stage('Publish image') {
@@ -68,6 +68,7 @@ pipeline {
             }
             steps {
                 sh 'docker push $DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER'
+                sh 'docker push $DOCKER_REGISTER/fangwei-blog:latest'
                 sh 'echo "$DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER" > .artifacts'
                 archiveArtifacts(artifacts: '.artifacts')
             }
