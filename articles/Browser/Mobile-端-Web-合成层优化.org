@@ -3,7 +3,6 @@
 
 * Android 动画卡顿
 
-
 * 参考
 
 [[http://taobaofed.org/blog/2016/04/25/performance-composite/][无线性能优化：Composite]]
