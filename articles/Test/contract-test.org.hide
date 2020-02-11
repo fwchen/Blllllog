@@ -209,9 +209,6 @@ assert.hasAllKeys(response[0], ['name', 'code']);
 
 [[./contract-test/tech.jpg]]
 
-
-
-
 *** 带来的问题: 消费者驱动的契约
      在前后端分离的开发模式中，后端无疑是提供服务者，而前端是消费者
 

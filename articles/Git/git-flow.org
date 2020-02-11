@@ -1,5 +1,0 @@
-#+TITLE: Trunk base development
-#+AUTHOR: 陳放為
-
-https://trunkbaseddevelopment.com
-
