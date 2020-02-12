@@ -1,5 +1,0 @@
-#+TITLE: Shell 网络资料
-#+AUTHOR: 陳放為
-
-** hosts
-https://github.com/StevenBlack/hosts

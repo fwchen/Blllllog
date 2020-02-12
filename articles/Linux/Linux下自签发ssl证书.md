@@ -34,8 +34,6 @@ http的安全性怎么样我就不多说了，可以自行google
 
 ###1-生成私钥
 
-
-
 ```bash
 openssl genrsa -des3 -out server.key 1024
 ```

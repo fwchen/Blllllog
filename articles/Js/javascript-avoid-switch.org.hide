@@ -56,6 +56,7 @@ function processInput(command) {
 https://github.com/CascadeEnergy/dispatch-fn
 
 例子在这里
+
 #+begin_src javascript
 var _ = require('lodash');
 var dispatch = require('../es5');

@@ -18,4 +18,3 @@
 
 https://github.com/WebReflection/url-search-params/issues/32
 
-共勉
