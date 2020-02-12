@@ -1,4 +1,4 @@
-title: Javascrtipt 之 tap 事件封装
+title: 如何用Rxjs状态管理
 date: 2015-08-04 17:26:54
 
 ---
@@ -29,7 +29,7 @@ Rxjs 能用在任何技术栈，在 Vue 和 React 能运行的很好，但是 Rx
 
 首先我们需要定义一个放状态的地方，在 angular 技术栈里，service 是一个很方便的载体，我们生成一个 state 的 service
 
-```shell
+``` shell
 ng generate service state
 ```
 
@@ -37,13 +37,13 @@ ng generate service state
 
 我们在 service 中默认初始化这个可观察对象
 
-```typescript
+``` typescript
 private books$ = new BehaviorSubject([]);
 ```
 
 并为这个私有 Observable 用两个方法来访问和改变它
 
-```typescript
+``` typescript
 public getBooks$(): Observable<IBook> {
   return this.books$;
 }
@@ -53,7 +53,7 @@ public getBooks$(): Observable<IBook> {
 
 我们还需要另一个方法来改变 books 的状态：
 
-```typescript
+``` typescript
 public replaceBooks(books) {
   this.books$.next(books);
 }
@@ -65,7 +65,7 @@ public replaceBooks(books) {
 
 最后我们的代码如下：
 
-```typescript
+``` typescript
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable } from "rxjs";
 @Injectable({
@@ -87,7 +87,7 @@ export class StateService {
 
 接下来我们要实现也页面的功能，我们不打算在这个 demo 中添加交互的功能，我们只需要看到我们数据列表在改变即可。
 
-```shell
+``` shell
 ng generate component book-list
 ```
 
@@ -95,7 +95,7 @@ ng generate component book-list
 
 首先我们要取得 `books$` 这个可观察对象，通过 Angular 的 DI 取得了单例的 `stateService，并赋值到` `component` 上。
 
-```typescript
+``` typescript
 constructor(public stateService: StateService) {
   this.book$ = stateService.getBooks$();
 }
@@ -103,7 +103,7 @@ constructor(public stateService: StateService) {
 
 在 html 上，我们通过 Angular 的 async 管道把 Observable 订阅在模版上，并渲染书籍列表出来
 
-```html
+``` html
 <div>
   <ul>
     <li *ngFor="let book of book$ | async">
@@ -120,8 +120,8 @@ constructor(public stateService: StateService) {
 可以看到，一开始没有列表渲染出来，只有 book-list works!，在三秒之后渲染出了 clean code 和 refactor 这两本书名，又在两秒后去除了 refactor
 
 完成这样的数据同步，我们在 book-detail 中的代码实际上只有一行
-
-```html
+ 
+``` html
 <div *ngIf="book$" n>name: {{ (book$ | async).name }}</div>
 ```
 
@@ -133,7 +133,7 @@ constructor(public stateService: StateService) {
 
 当然这样的需求我们直接把 books 拿到之后，再通过 for 循环或者 reduce 方法进行计算，也是可以算出总价，当然，rxjs 有自己的做法，新建一个 total\$ 的可观察对象。
 
-```typescript
+``` typescript
 this.total$ = this.book$.pipe(
   map(books => books.reduce((acc, cur) => acc + cur.price, 0))
 );
@@ -155,7 +155,7 @@ this.total$ = this.book$.pipe(
 
 上面的做法有一个问题，就是数据没有一个很有效的方法去改变它，添加一本书的方法里面需要 subscribe `books$` ，修改后重新发射进去。
 
-```typescript
+``` typescript
 public addBook(book: any): void {
   this.books$.pipe(take(1)).subscribe(books => {
     this.books$.next(books.concat(book));
@@ -169,7 +169,7 @@ public addBook(book: any): void {
 
 举个例子，假设 `state$` 这个 Observable 里面的值是 `{ books: [ book1 ] }`，然后发射一个方法，通过某种方法更新 `state$` 里面的值
 
-```typescript
+``` typescript
 state => {
   state.books.push(book2);
   return state;
@@ -186,7 +186,7 @@ state => {
 
 看看代码实现，我们新建一个 `State2Service`，准备在组件上替换之前的 service
 
-```typescript
+``` typescript
 private state$ = new BehaviorSubject({ book: [] });
 private update$ = new Subject<Function>();
 
@@ -202,7 +202,7 @@ this.update$
   .subscribe(this.state$);
 ```
 
-首先，定义 `state$` 和 `update$` 两个 Observable，然后在构造函数里实现我们上面说的，我们通过一个辅助的流 `update$` 来实现。`update$` 里面放的是更新方法，然后通过 scan 方法 subscribe 到 `state$` 中去
+首先，定义 `state$` 和 `update$` 两个 Observable，然后在构造函数里实现我们上面说的， 我们通过一个辅助的流 `update$` 来实现。`update$` 里面放的是更新方法，然后通过 scan 方法 subscribe 到 `state$` 中去
 
 然后需要一些别的动作，例如 add, replace，来新增书籍和更新书籍数据，就像之前的例子一样。
 
@@ -231,6 +231,7 @@ this.replace$
   )
   .subscribe(this.update$);
 ```
+
 这里我们声明了 `add$` 和 `replace$` 两个可观察对象，然后把这两个 Observable 经过流处理后 `map` 成了一个一个更新方法，发射到 `update$` 中，最后会更新到 `state$` 中去。
 
 最后，我们的 `addBook` 方法只需要把 `book` 参数发射到 `add$` 中即可，流程如下图
