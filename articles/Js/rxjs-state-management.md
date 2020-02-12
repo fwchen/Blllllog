@@ -1,4 +1,4 @@
-title: 如何用Rxjs状态管理
+title: 如何用 Rxjs 状态管理
 date: 2015-08-04 17:26:54
 
 ---
@@ -29,7 +29,7 @@ Rxjs 能用在任何技术栈，在 Vue 和 React 能运行的很好，但是 Rx
 
 首先我们需要定义一个放状态的地方，在 angular 技术栈里，service 是一个很方便的载体，我们生成一个 state 的 service
 
-``` shell
+```shell
 ng generate service state
 ```
 
@@ -37,13 +37,13 @@ ng generate service state
 
 我们在 service 中默认初始化这个可观察对象
 
-``` typescript
+```typescript
 private books$ = new BehaviorSubject([]);
 ```
 
 并为这个私有 Observable 用两个方法来访问和改变它
 
-``` typescript
+```typescript
 public getBooks$(): Observable<IBook> {
   return this.books$;
 }
@@ -53,7 +53,7 @@ public getBooks$(): Observable<IBook> {
 
 我们还需要另一个方法来改变 books 的状态：
 
-``` typescript
+```typescript
 public replaceBooks(books) {
   this.books$.next(books);
 }
@@ -65,7 +65,7 @@ public replaceBooks(books) {
 
 最后我们的代码如下：
 
-``` typescript
+```typescript
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable } from "rxjs";
 @Injectable({
@@ -87,7 +87,7 @@ export class StateService {
 
 接下来我们要实现也页面的功能，我们不打算在这个 demo 中添加交互的功能，我们只需要看到我们数据列表在改变即可。
 
-``` shell
+```shell
 ng generate component book-list
 ```
 
@@ -95,7 +95,7 @@ ng generate component book-list
 
 首先我们要取得 `books$` 这个可观察对象，通过 Angular 的 DI 取得了单例的 `stateService，并赋值到` `component` 上。
 
-``` typescript
+```typescript
 constructor(public stateService: StateService) {
   this.book$ = stateService.getBooks$();
 }
@@ -103,7 +103,7 @@ constructor(public stateService: StateService) {
 
 在 html 上，我们通过 Angular 的 async 管道把 Observable 订阅在模版上，并渲染书籍列表出来
 
-``` html
+```html
 <div>
   <ul>
     <li *ngFor="let book of book$ | async">
@@ -120,8 +120,8 @@ constructor(public stateService: StateService) {
 可以看到，一开始没有列表渲染出来，只有 book-list works!，在三秒之后渲染出了 clean code 和 refactor 这两本书名，又在两秒后去除了 refactor
 
 完成这样的数据同步，我们在 book-detail 中的代码实际上只有一行
- 
-``` html
+
+```html
 <div *ngIf="book$" n>name: {{ (book$ | async).name }}</div>
 ```
 
@@ -131,7 +131,7 @@ constructor(public stateService: StateService) {
 
 假设我们来了一个新的需求，需要在页面中显示所有书本的总价。
 
-当然这样的需求我们直接把 books 拿到之后，再通过 for 循环或者 reduce 方法进行计算，也是可以算出总价，当然，rxjs 有自己的做法，新建一个 total\$ 的可观察对象。
+当然这样的需求我们直接把 books 拿到之后，再通过 for 循环或者 reduce 方法进行计算，也是可以算出总价，当然，rxjs 有自己的做法，新建一个 `total$` 的可观察对象。
 
 ``` typescript
 this.total$ = this.book$.pipe(
@@ -155,7 +155,7 @@ this.total$ = this.book$.pipe(
 
 上面的做法有一个问题，就是数据没有一个很有效的方法去改变它，添加一本书的方法里面需要 subscribe `books$` ，修改后重新发射进去。
 
-``` typescript
+```typescript
 public addBook(book: any): void {
   this.books$.pipe(take(1)).subscribe(books => {
     this.books$.next(books.concat(book));
@@ -169,7 +169,7 @@ public addBook(book: any): void {
 
 举个例子，假设 `state$` 这个 Observable 里面的值是 `{ books: [ book1 ] }`，然后发射一个方法，通过某种方法更新 `state$` 里面的值
 
-``` typescript
+```typescript
 state => {
   state.books.push(book2);
   return state;
@@ -186,7 +186,7 @@ state => {
 
 看看代码实现，我们新建一个 `State2Service`，准备在组件上替换之前的 service
 
-``` typescript
+```typescript
 private state$ = new BehaviorSubject({ book: [] });
 private update$ = new Subject<Function>();
 
@@ -208,7 +208,7 @@ this.update$
 
 写法如下：
 
-``` typescript
+```typescript
 this.addBook$
   .pipe(
     map((book: IBook) => {
@@ -240,7 +240,7 @@ this.replace$
 
 最后，我们来看看 `State2Service` 的全部代码
 
-``` typescript
+```typescript
 import { Injectable } from "@angular/core";
 import { Subject, Observable, BehaviorSubject } from "rxjs";
 import { scan, map } from "rxjs/operators";
@@ -321,3 +321,7 @@ export class State2Service implements State {
 上面的状态管理其实是一种典型的事件驱动的写法，单纯来看，事件驱动的一个比较大的弊端是通常耦合比较严重。
 
 例如，在 book-list 页面中用到了 `book$` 和 `total$` 这两个可观察对象，在 detail 页面中用到了 `books$` 或者 `bookDetail$` 这两个 Observable，可能在别的地方也需要  引用 `StateService` 来获取 Observable，每一个组件都需要知道  Observable 的存在，可是那些组件明明只需要一些相应的数据而已，这就是强耦合。
+
+> 这里必须要说明一点的是，这种耦合性不是 Angular 的问题，甚至不是在 Rxjs 在 Angular 中带来的问题。相比 React，诚然，React 在组件化方面做的比较好，但
+
+正所谓有得必有失，我们有 Rxjs 的诸多好处，例如事件驱动，非阻塞，数据流等，
