@@ -13,7 +13,6 @@ tags:
 
 这种技术近几年随着移动端的大热也渐渐升温，BackBone，Angular等前端框架兴起，结合NodeJs，使得前后端语言同一，前端开发可以兼容后端开发等等，并有替代前几年一统天下的jQuery趋势。
 
-
 jQuery的缺点其实非常明显，臃肿和维护性差。
 
 这里推荐一篇文章：http://www.angularjs.cn/A0bz

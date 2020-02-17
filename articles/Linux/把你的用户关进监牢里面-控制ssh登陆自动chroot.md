@@ -1,4 +1,4 @@
-title: '把你的用户关进监牢里面:) 控制ssh登陆自动chroot'
+title: 把你的用户关进监牢里面-控制ssh登陆自动chroot
 date: 2015-05-31 15:51:24
 tags:
 - chroot jail
