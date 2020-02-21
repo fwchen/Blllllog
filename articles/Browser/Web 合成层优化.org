@@ -1,0 +1,109 @@
+#+TITLE: Web 合成层优化
+#+AUTHOR: 陳放為
+
+* Web 动画卡顿
+
+最近有个项目，做到了中期，发现页面渲染上明显的卡顿
+
+** 手机端
+*** 表现
+我们做了一个在某个 APP 里的 web mobile app，用了 ionic =angular-ionic= 作为 UI 库，采用了 Angular。主要是看中了 Ionic 优秀的 web 端优化和大量接近原生的组件库，但是很不幸的是，做着做着发现了在页面导航中有卡顿掉帧，虽然不是很明显，但是影响了体验，在 Android 上尤为明显，于是我们进行了 css 层面的优化
+
+#+BEGIN_QUOTE
+我们也不是从一开始判断出来是 css 的问题，也是进行了很多排查，我们的 JS 代码比较干净，出现卡顿的机型也不旧，才判断出来可能是 css 的问题，当然原因可能是其他，例如是重绘，回流，使用了过多阴影或者 css filter 等
+#+END_QUOTE
+
+** Debug
+
+*** 监控
+打开 Chrome 的 developer tool 的 Performance 标签，点击小圆圈，然后开始操作页面，当然是要进行令页面卡顿的操作
+
+
+[[image-url:./Web 合成层优化/adb08c30d4fbbdf041297f635039d771]]
+
+然后再点击红色的小圆圈停止性能监测，性能图表已经出现了
+
+[[image-url:./Web 合成层优化/e93d1b09d910f33d3ea551e486b2680f]]
+
+其实可以明显的感觉到，我们感觉卡顿的时候，就是上图网络图上面选中的地方，可以看到 FPS 出现了明显的下降， javascript 执行的代码和页面重绘也在进行中，不幸的是，在下面的 Interactions Anmiation 中，没有发现红色的地方，这意味着 js 代码没有出现严重的问题，这样的话其实不是一件好事情，因为 js 代码的优化还比较简单，但是其他地方的优化就没有那么容易了。
+
+
+
+[[image-url:./Web 合成层优化/6e5cea2b909cd1c69867a5fb445fc22b]]
+*** 堆栈
+我们继续查看卡顿的地方，展开 Main 一栏查看堆栈，突然发现了一个很有趣的问题，那就是 下面 Main 一栏里面，js 运行的那黄色的小块小块十分密集，而砂上图选中的那个绿色的 Frames 也非常窄，那么思路就来，是不是页面内的 css 布局不是很好，导致创建了很多 css 合成层（也有人叫复合层的）
+
+
+
+[[image-url:./Web 合成层优化/4945e63701a59fc39663f40707156cfb]]
+*** 合成层视图
+于是选中上面的一个 Frames，然后下面（如上图），最底下那块就会出现 Layers 这个 Tab 栏，我们选中，就可以看到合成层的数量和形状，然后一看，我的天呐，这也太多合成层了吧，大大小小有二三十个，而且很多都是重复的。
+
+造成页面卡顿的原因，很有可能就是因为合成层太多的原因，而经过后面的验证，发现问题正是如此。
+
+然后？当然是和合成层的优化了。
+
+
+
+* 合成层优化
+
+** 页面渲染流程
+
+渲染的流程是分析渲染的关键，请好好观察这个流程:
+
+#+BEGIN_QUOTE
+javascript > style > layout > paint > composite
+#+END_QUOTE
+
+
+提升为独立图层的原因有下面这些
+
+1. 3d或透视变换css属性，例如translate3d,translateZ等等（js一般通过这种方式，使元素获得复合层）
+2. 使用will-change属性。<video> <iframe> <canvas> <webgl>等元素。
+3. 混合插件（如flash）。
+4. 元素自身的 opacity和transform 做 CSS 动画。
+5. 拥有css滤镜的元素。
+6. position:fixed 
+7. 元素有一个 z-index - 较低且包含一个复合层的兄弟元素(换句话说就是该元素在复合层上面渲染，即隐式合成)
+
+... 等等
+
+#+BEGIN_QUOTE
+为什么有等等呢，因为浏览器（尤其是 chrome）的变化日新月异，chrome 在不断地优化，有很多几年前的优化方案放在最新版的 chrome 上，已经不适用了。
+#+END_QUOTE
+
+
+
+
+#+BEGIN_SRC css
+* {
+    will-change:transform;
+}
+#+END_SRC
+
+世上没有免费的午餐，创建图层并保存图层信息也会带来资源的消耗。滥用图层将消耗大量的内存资源。（这是空间和时间的取舍）
+
+关于will-change
+这个属性使用起来很爽，但使用恰当并不容易。其设计目的是作为最后的优化手段，而不是用来预防性能问题的。所以最佳实践是当元素变化之前和之后通过脚本来切换 will-change 的值。 
+
+
+同时这个属性的原理是提前告诉浏览器可能发生变化的属性，让其提前完成优化工作。所以要预留时间给浏览器优化。当然，当页面主要用途就是动画切换（如相册类），且画面大而复杂的时候，直接在样式设置will-change是合理的。
+
+
+
+
+
+
+* 性能
+- 不要使用 normalize 等 css 重置大量样式
+- 不要使用 css filter 
+
+
+* 参考
+
+https://developer.mozilla.org/en-US/docs/Web/CSS/contain
+https://developer.mozilla.org/zh-CN/docs/Web/CSS/will-change
+
+[[http://taobaofed.org/blog/2016/04/25/performance-composite/][无线性能优化：Composite]]
+
+
