@@ -71,8 +71,7 @@ sudo route -n delete 172.1.1.1/32 -link ppp0
 # 参考文章
 [https://wiki.archlinux.org/index.php/Ppp](https://wiki.archlinux.org/index.php/Ppp)
 
-[https://www.tldp.org/HOWTO/PPP-HOWTO/](https://www.tldp.org/HOWTO/PPP-HOWTO/)
-
 [Layer_2_Tunneling_Protocol](https://en.wikipedia.org/wiki/Layer_2_Tunneling_Protocol)
 
----
+[https://www.tldp.org/HOWTO/PPP-HOWTO/](https://www.tldp.org/HOWTO/PPP-HOWTO/)
+
