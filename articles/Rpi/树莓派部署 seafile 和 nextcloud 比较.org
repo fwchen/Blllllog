@@ -1,0 +1,226 @@
+#+TITLE: 树莓派部署 seafile 和 nextcloud 比较
+#+AUTHOR: 陳放為
+
+* 缘由
+家中刚好闲置了一块移动硬盘，足足有2T，而且也有一定年头了，不用白不用，拿来干点什么也好，想了想，还有一个树莓派3B，要不搭一个网盘吧。
+
+* 思路
+
+1. 网络上开源的网盘有几个，我听说过比较出名的是国内的 seafile 和国外的 nextcloud，小孩子才比较，成年人全都要，决定直接搭建两个，用作比较
+2. 树莓派那鸡儿大的 IO 我也是领教过的，之前用来挂 PT，写入速度还没我家 200M 网速快，拿来直接读硬度硬盘肯定是比较蛋疼的，而且树莓派供电也带不动，那怎么办呢。家里的路由器是华硕的 AC86U，就用路由器带硬盘吧，40M IO 差不多吧，做网盘肯定是够了。
+
+* 具体实施
+** 树莓派系统
+我都懒得重新装了，插上之前的 tf 卡直接开干
+
+** 路由器分享文件系统测试
+我没有傻到最后一步才用树莓派接入路由器分享出来的文件系统
+
+先把硬盘怼到我路由器后面的 USB3.0 接口上，登陆路由器管理页面，能直接看到已经识别到了硬盘，还是挺顺利的
+
+然后准备把这个硬盘分享出去，鉴于之前我试过树莓派 mount samba 协议的文件系统，死活不成功，所以我这次选择用 nfs 协议
+
+参照这个文章 https://sysadmins.co.za/setup-a-nfs-server-and-client-on-the-raspberry-pi/, 在路由器上设置了之后到树莓派上去 mount 
+
+主要是要在 nfs 服务器上加上 sync 这个配置，不然的话，在 nfs 客户端读取数据会报权限问题，在华硕路由器 AC86U 上的配置如下
+
+[[image-url:./树莓派部署 seafile 和 nextcloud 比较/7bddd2684fef60f639a70d236479416d]]
+
+然后在树莓派上重新的挂载命令如下
+
+#+BEGIN_SRC
+sudo mount -o rw 192.168.50.1:/mnt/Storage/NFS /mnt/nfs
+#+END_SRC
+
+然后在 /mnt/nfs 下读写了一下，都是正常的，而且权限正确，用户名是 pi
+
+** 安装 seafile， nextcloud
+
+*** 先安装 docker
+在 docker 官网文档上
+[[https://docs.docker.com/install/linux/docker-ee/ubuntu/]]
+
+在 =Install using the convenience script= 这个章节里，拷贝这段代码执行就 ok 了，十分简单
+
+#+BEGIN_SRC bash
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+#+END_SRC
+
+*** 安装 mysql 
+因为 seafile 和 nextcloud 都要用到 mysql， 所以要先安装  mysql ，准备用 docker 启动一个，*但是 docker 的 mysql 镜像没有 arm 架构集*，无法运行
+
+于是在树莓上用 apt install mysql 来安装，然后才发现我之前在树莓派上安装过，但是 root 密码忘了，我也就作罢了，我记得 mysql 改密码还挺麻烦的，seafile 和 nextcloud 都支持 sqlite3，那就先用 sqlite3 吧，以后再想办法迁移到 mysql
+
+
+*** 安装 seafile
+一开始安装 seafile 的时候我是想直接用 docker 启动的，但是一运行发现不行，seafile 没有编译 arm 架构的，那没办法了，只能手工安装，只是太麻烦了。
+
+#+BEGIN_QUOTE
+ps: docker 实在真的是太方便了
+#+END_QUOTE
+
+现在官网文档中 [[http://www.seafile.com/en/download/#server]] 找到树莓派编译好的包，然后按照 =Deploying Seafile with SQLite= 这个章节的教程，开始部署 seafile
+
+部署操作还是算简单的，应该没有什么难度，唯一感觉有点且想吐槽的是，seafile 启动要启动两个东西，一个是 seafile，一个是 seahub，而在配置项里面只有 seahub service 的端口配置，虽然文档里有说明，但是还是很容易误导人，我就搞了半天发现 8001 不是 web 端口，无语😓
+
+把 seafile 启动了之后，发现 seafile 服务正常，admin 账号成功登录和上床文件，算是成功了
+
+*** mount nfs 问题。
+
+当然上一步只是 seafile 服务启动成功了，用的空间是树莓派的 TF 卡空间，那 io 速度非常慢，所以我们要用 NTF 挂载的系统，那么我们到 =conf/seafile.conf= 上，修改数据目录存储空间到我们挂载的 /mnt/ntf/seafile 上，但是最坑的事情来了
+
+
+
+*database lock*
+
+当切换了存储目录，并重新启动后，发现数据库被锁定了🔒
+
+#+BEGIN_SRC bash
+[03/16/19 23:00:58] ../common/seaf-db.c(142): Error exec query CREATE TABLE IF NOT EXISTS Branch (name VARCHAR(10), repo_id CHAR(41), commit_id CHAR(41),PRIMARY KEY (repo_id, name)): sqlite3_exec failed: database is locked.
+#+END_SRC
+
+仔细想想，被锁定了，那估计就是 nfs 下的 sqlite3 文件系统有问题呗，但是也没理由不用 nfs 啊，树莓派的 tf 卡那么小，几乎不能存储东西啊
+
+于是上网查阅了一下，果然有哥们遇到了同样的问题，只需要在 mount 的时候加上 =nolock= 就能完美解决
+
+sudo mount  192.168.50.1:/mnt/sda1/nfs /mnt/remote -o user=pi,nolock
+
+解决了之后，在树莓派上的 seafile 就已经运行的很成功了。
+
+#+BEGIN_SRC bash
+[2019-03-16T23:57:17,259][INFO ][o.e.c.s.MasterService    ] [node-raspberry] zen-disco-elected-as-master ([0] nodes joined), reason: new_master {node-raspberry}{UEpNAPb5Rqyeeox4J1d1mQ}{yXcpPUV7Q12Q-ZcuA3QBLQ}{172.17.0.1}{172.17.0.1:9300}{xpack.installed=true}
+[2019-03-16T23:57:17,287][INFO ][o.e.c.s.ClusterApplierService] [node-raspberry] new_master {node-raspberry}{UEpNAPb5Rqyeeox4J1d1mQ}{yXcpPUV7Q12Q-ZcuA3QBLQ}{172.17.0.1}{172.17.0.1:9300}{xpack.installed=true}, reason: apply cluster state (from master [master {node-raspberry}{UEpNAPb5Rqyeeox4J1d1mQ}{yXcpPUV7Q12Q-ZcuA3QBLQ}{172.17.0.1}{172.17.0.1:9300}{xpack.installed=true} committed version [1] source [zen-disco-elected-as-master ([0] nodes joined)]])
+[2019-03-16T23:57:17,674][INFO ][o.e.h.n.Netty4HttpServerTransport] [node-raspberry] publish_address {172.17.0.1:9200}, bound_addresses {[::]:9200}
+[2019-03-16T23:57:17,678][INFO ][o.e.n.Node               ] [node-raspberry] started
+[2019-03-16T23:57:19,020][WARN ][o.e.x.s.a.s.m.NativeRoleMappingStore] [node-raspberry] Failed to clear cache for realms [[]]
+[2019-03-16T23:57:20,018][INFO ][o.e.g.GatewayService     ] [node-raspberry] recovered [0] indices into cluster_state
+[2019-03-16T23:57:21,410][INFO ][o.e.c.m.MetaDataIndexTemplateService] [node-raspberry] adding template [.triggered_watches] for index patterns [.triggered_watches*]
+[2019-03-16T23:57:21,732][INFO ][o.e.c.m.MetaDataIndexTemplateService] [node-raspberry] adding template [.watches] for index patterns [.watches*]
+[2019-03-16T23:57:23,179][INFO ][o.e.c.m.MetaDataIndexTemplateService] [node-raspberry] adding template [.watch-history-9] for index patterns [.watcher-history-9*]
+[2019-03-16T23:57:24,309][INFO ][o.e.c.m.MetaDataIndexTemplateService] [node-raspberry] adding template [.monitoring-logstash] for index patterns [.monitoring-logstash-6-*]
+[2019-03-16T23:57:25,893][INFO ][o.e.c.m.MetaDataIndexTemplateService] [node-raspberry] adding template [.monitoring-es] for index patterns [.monitoring-es-6-*]
+[2019-03-16T23:57:27,062][INFO ][o.e.c.m.MetaDataIndexTemplateService] [node-raspberry] adding template [.monitoring-beats] for index patterns [.monitoring-beats-6-*]
+[2019-03-16T23:57:29,280][INFO ][o.e.c.m.MetaDataIndexTemplateService] [node-raspberry] adding template [.monitoring-alerts] for index patterns [.monitoring-alerts-6]
+[2019-03-16T23:57:30,642][INFO ][o.e.c.m.MetaDataIndexTemplateService] [node-raspberry] adding template [.monitoring-kibana] for index patterns [.monitoring-kibana-6-*]
+[2019-03-16T23:57:33,935][INFO ][o.e.l.LicenseService     ] [node-raspberry] license [74bc854c-2bc2-4ab0-a639-38d37aa3d155] mode [basic] - valid
+#+END_SRC
+
+
+*** frp client
+
+seafile 如果只在内网上能用，也好像也没有什么玩头，而且 seafile 和 nextcloud 都支持手机端和电脑端，但是我家的宽带是动态获取 ip 的，也就是处于 NAT 下，而且经过我检查，处在了多层 NAT 下，那么就无法用过 DDNS 绑定我家宽带的动态 ip 了，那么只能通过内网穿透技术把内网的 seafile 服务暴露到外网上
+
+#+BEGIN_QUOTE
+vi /etc/systemd/system/frps.service 新建此文件，并写入以下内容
+
+#+BEGIN_QUOTE
+[Unit]
+Description=frps daemon
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/frps -c /etc/frps/frps.ini
+
+[Install]
+WantedBy=multi-user.target
+#+END_QUOTE
+
+
+启动并设为开机自启。
+
+$ systemctl start frps
+$ systemctl enable frps
+
+#+END_QUOTE
+
+
+然后按照文档配置文件：
+
+#+BEGIN_SRC yaml
+[seafile]
+type = tcp
+local_ip = 192.168.50.xx
+local_port = 8081
+remote_port = 6600
+
+#+END_SRC
+
+然后重启 frp， 在有公网 ip 的服务器的 127.0.0.1:6600 已经对接上了 seafile 的 web 服务。
+
+
+*** nginx 反向代理
+
+最后一步，就是在 vps 上添加反向代理了：
+
+这个 seafile 的规则还比较特殊，我是参阅了 seafile 的官方文档配置的
+
+#+BEGIN_SRC nginx
+server {
+    listen 443 ssl http2;
+    server_name xx.xx.com.xyz;
+    access_log off;
+
+    ssl_certificate /etc/letsencrypt/live/xx.xx.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/xx.xx.com/privkey.pem;
+
+    location / {
+         proxy_pass         http://seafile_upstream;
+         proxy_set_header   Host $host;
+         proxy_set_header   X-Real-IP $remote_addr;
+         proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+         proxy_set_header   X-Forwarded-Host $server_name;
+         proxy_read_timeout  1200s;
+
+         # used for view/edit office file via Office Online Server
+    }
+
+    location /seafhttp {
+        proxy_pass http://seafile_upstream/seafhttp/;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+
+        proxy_connect_timeout  36000s;
+        proxy_read_timeout  36000s;
+        proxy_send_timeout  36000s;
+
+        client_max_body_size 0;
+        send_timeout  36000s;
+    }
+}
+#+END_SRC
+
+
+** 安装 nextcloud 
+
+相比 seafile 之下，nextcloud 的安装可谓十分简单
+#+BEGIN_SRC
+docker run -d -p 8080:80 -v /mnt/nfs/nextcloud:/var/www/html nextcloud
+#+END_SRC
+
+需要注意的是，nextcloud 的数据目录挂载的 nfs 同样需要 nolock 的挂载参数，不然一样启动不了。
+
+
+* seafile 和 nextcloud 的使用对比
+
+** seafile 
+优点：
+1. 中文支持
+2. 社区还算丰富
+3. 客户端多，支持丰富，还有 linux 版本的同步客户端
+
+缺点：
+
+1.bug多（ios，android 都有同步相片等bug）
+2.功能不多
+3. 一些设计不太合理（例如需要绑定一个域名，seahub上传地址固定等）
+
+** nextcloud
+优点：
+1. 好看，设计大方简介
+2. 功能多
+3. 相比 seafile 设计合理
+
+缺点：
+1. mac 客户端太丑
+
+总的来说，其实 nextcloud 是比 seafile 更好的，但是令我无法忍受的是 nextcloud 的 mac 客户端太丑了，简直是上个年代产物，无奈之下我只能选择了 seafile 作为正式使用的网盘。
