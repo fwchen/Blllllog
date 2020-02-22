@@ -1,0 +1,239 @@
+#+TITLE: 如何创建 Filebeat 应用模块
+#+AUTHOR: 陈放为
+
+* Filebeat
+ 
+filebeat 是一个轻量的日志收集器，虽然很多地方还不是特别完善，但是贵在非常轻量，占用资源较少
+
+但是 filebeat 本身自带的模块并不能为我们的应用收集日志，那么我们就让自己来创建一个 filebeat 模块
+
+* 创建自定义模块
+
+参照下面的下面的官方文档
+
+[[https://www.elastic.co/guide/en/beats/devguide/6.8/filebeat-modules-devguide.html#_overview]]
+
+** 把 beats 仓库下载下来
+
+
+#+BEGIN_SRC bash
+go get -v github.com/elastic/beats
+#+END_SRC
+
+
+
+#+BEGIN_QUOTE
+本文章基于有 Golang 基础上讲述，在这一步之前你应该构建好 Golang 开发环境
+#+END_QUOTE
+
+** 创建模块
+
+进入 =C:\Users\chenf\go\src\github.com\elastic\beats\filebeat= 目录
+
+
+本文是用的 beats 的 master 分支，filebeat 8.0 版本
+
+执行命令：
+
+#+BEGIN_SRC bash
+make create-module MODULE=foo
+#+END_SRC
+
+
+
+然后项目目录会出现新的模块文件
+
+
+#+BEGIN_SRC bash
+module/foo
+├── module.yml
+└── _meta
+    └── docs.asciidoc
+    └── fields.yml
+    └── kibana
+#+END_SRC
+
+
+#+BEGIN_QUOTE
+在新版本中可以通过 =filebeat generate module= 等命令来创建 =module= 和 =fileset=，可以只用下载二进制包来构建了
+#+END_QUOTE
+
+* 配置 module 和 fileset
+
+上面我们已经创建了一个叫 =foo= 的模块，这里我先忽略一些无关紧要的配置，例如 kibana 的 dashboard 等，这里暂时不考虑，先把数据发送到 elasticsearch。
+
+module 其实没有什么可以配置的，我们直接创建一个 fileset，fileset 是 filebeat 模块中对一种类型的日志的概念，例如在 filebeat 自带的 nginx 模块中，access 和 error 两种类型的日志就是两个 fileset。
+
+我们通过命令创建一个叫 bar 的 fileset
+
+
+#+BEGIN_SRC bash
+make create-fileset MODULE=foo FILESET=bar
+#+END_SRC
+
+或者
+
+#+BEGIN_SRC bash
+filebeat generate fileset foo bar
+#+END_SRC
+
+然后我们可以看到在 foo 模块下，多出了一个 bar 的目录
+
+
+#+BEGIN_SRC bash
+module/foo/bar
+├── manifest.yml
+├── config
+│   └── bar.yml
+├── ingest
+│   └── pipeline.json
+├── _meta
+│   └── fields.yml
+│   └── kibana
+│       └── default
+└── test
+#+END_SRC
+
+** 配置 fileset 的 log 文件路径
+打开 =module/foo/bar/manifest.yml= 这个文件，然后把相关的配置改为
+
+
+#+BEGIN_SRC yaml
+var:
+  - name: paths
+    default:
+      - /var/log/bar/fetch.log
+#+END_SRC
+
+设置 log 文件的存放路径为 =/var/log/bar/=
+
+
+然后我们向这个文件写入一行 json 数据，注意必须是一行，不能换行，因为 filebeat 的默认设置就是为行为单位读取每一条日志的
+
+
+#+BEGIN_SRC
+{"title":"i am heo", "name": "Mars"}
+#+END_SRC
+
+这里我们用的是 json 的日志结构，因为现在大多数的日志框架都默认输出 json 格式，当然也可以用其他格式来设置，现在先介绍 json 的解析方法
+
+其实到这里的话，只要我们配置好 filebeat 的设置，就可以发送到 elasticsearch 中了，只不过这个日志消息的 message 就是一整行的 json 内容，我们还需要将我们的 json 格式成相对应的 key 值
+
+** 配置 fileset 
+
+打开 =module/foo/bar/config/bar.yaml= 这个文件进行设置
+
+在最下面添加一下配置
+
+
+#+BEGIN_SRC yaml
+processors:
+ - decode_json_fields:
+     fields: ["title", "name"]
+     process_array: false
+     max_depth: 1
+     target: ""
+     overwrite_keys: true
+#+END_SRC
+
+这个配置描述了 decode_json_fields 这个 processors，解析两个字段，title 和 name，target 可以不设置
+
+
+到这里，bar 这个 filebeat 的配置已经基本设置完了
+
+** 设置 filebeat 
+
+打开 filebeat 根目录下的 =filebeat.yml= 文件，对 elasticsearch output 进行设置
+
+
+#+BEGIN_SRC yaml
+output.elasticsearch:
+  # Array of hosts to connect to.
+  hosts: ${ES_HOSTS}
+  index: "filebeat-oyster"
+  # Optional protocol and basic auth credentials.
+  protocol: "https"
+  username: ${ES_USERNAME}
+  password: ${ES_PASSWORD}
+  ssl.verification_mode: none
+#+END_SRC
+
+** 启动 filebeat 发送到 elastcisearch
+
+
+#+BEGIN_SRC bash
+./filebeat -e -c filebeat.yml
+#+END_SRC
+
+如果没有报错，就可以到 kibana 上去查看一下，会出现一个叫 filebeat-oyster 的索引
+
+
+到 kibana 的 discover 页面查看日志的效果如下
+
+[[image-url:./如何创建 Filebeat 应用模块/e8c4b0aa62f906904c9af2107b6a60f7]]
+
+* 打包 docker 镜像
+
+
+** 构建
+如果要打包一个专属的 docker 镜像，操作如下
+
+选择一个下载回来或者编译出来的 filebeat 平台对应的 docker 基础镜像，这里我选择的是 =debian:buster=
+
+dockerfile 的配置如下
+
+
+#+BEGIN_SRC Dockefile
+FROM debian:buster
+
+WORKDIR /filebeat
+
+COPY ./filebeat /filebeat/filebeat
+COPY ./module/ /filebeat/module
+COPY ./modules.d/ /filebeat/modules.d
+COPY ./filebeat.yml /filebeat/filebeat.yml
+
+
+CMD ["/filebeat/filebeat", "-e", "-c", "./filebeat.yml"]
+
+#+END_SRC
+
+** 构建思路
+
+直接把 go 的二进制包放进 docker 容器中，即可运行，然后把 module 等这些配置文件夹文件都 copy 进去，就能完美运行
+
+** 运行 docker 镜像
+
+
+#+BEGIN_SRC
+``` bash
+docker run --rm \
+-e ES_HOSTS="'es.xx.com:443'" \
+-e ES_USERNAME="basic username" \
+-e ES_PASSWORD="basic password" \
+-v ../log:/var/log/oyster \
+2418200a2d13
+```
+
+#+END_SRC
+
+* FAQ
+
+** 模板配置冲突
+当时我卡在这一步很久，不知道为什么自动覆盖模板不生效，导致发送数据给 ES 失败，要手工加载一下模板
+
+
+#+BEGIN_SRC bash
+./filebeat export template > filebeat.template.json
+#+END_SRC
+
+
+#+BEGIN_SRC bash
+ curl -X PUT "http://192.168.50.xxx:9200/_template/filebeat-test" -H 'Content-Type: application/json' -d@filebeat.template.json
+#+END_SRC
+
+上面 filebeat-test 是 filebeat 里面设置的 index 名
+
+* 参考文章
+1. https://www.elastic.co/cn/blog/structured-logging-filebeat
+2. https://www.elastic.co/guide/en/beats/devguide/current/filebeat-modules-devguide.html

@@ -29,6 +29,11 @@
 2. 在其他设备上（包括 iPhone 和 Android）都是好的
 3. 在另一个服务期上网站正常（也是 Let's Encrypt 签发）
 
+9.18 / 2018 更新 补全了证书链，在 chromebook 上还是不起作用
+
+更新
+最后发现nginx上用的 cert.pem 证书，其实要用的是 fullchain.pem 妈的，真的被自己蠢哭
+
 #+BEGIN_QUOTE
 参考
 
