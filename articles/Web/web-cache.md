@@ -111,7 +111,7 @@ F5
 [Mozilla Caching_FAQ](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Caching_FAQ)
 [Google HTTP 缓存](https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching?hl=zh-cn)
 [HTTP 缓存机制一二三](https://zhuanlan.zhihu.com/p/29750583)
-
+[nginx-caching-guide](https://www.nginx.com/blog/nginx-caching-guide/)
 
 浏览器的缓存有 2 种 一种叫验证性缓存，用 ETag 、 Last-Modified 、 If-None-Match 、 If-Modified-Since 来控制，其特点是会发一个请求给服务器来确认缓存是否有效，如果有效就返回 304 ，省去传输内容的时间 另一种叫非验证性缓存，或者有些人称为强缓存，用 Cache-Control 、 Expires 、 Pragma 来控制，其特点是一但有效就在有效期内不会发任何请求到服务器
 
