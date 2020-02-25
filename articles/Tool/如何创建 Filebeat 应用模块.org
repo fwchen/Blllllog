@@ -3,23 +3,25 @@
 
 * Filebeat
  
-filebeat 是一个轻量的日志收集器，虽然很多地方还不是特别完善，但是贵在非常轻量，占用资源较少
+filebeat 是一个轻量的日志收集器，虽然很多地方还不是特别完善，但是贵在非常轻量，占用资源较少，而且有很多默认的配置，使用起来十分方便。
 
-但是 filebeat 本身自带的模块并不能为我们的应用收集日志，那么我们就让自己来创建一个 filebeat 模块
+但是 filebeat 本身自带的模块并不能为我们的应用收集日志，而且文档十分有限，这篇文章带大家如何创建一个 filebeat 模块，用来收集业务应用 log 数据，以做参考。
 
 * 创建自定义模块
 
-参照下面的下面的官方文档
+首先我们要参照下面的官方文档
 
 [[https://www.elastic.co/guide/en/beats/devguide/6.8/filebeat-modules-devguide.html#_overview]]
 
+不过其实文档说的不是很清楚，要一步一步探索。
+
 ** 把 beats 仓库下载下来
 
+通过命令把 filebeat 源码直接下下来，可以方便配置（其实后来发现直接下二进制包也是可以的，不过有 git，还是可以方便折腾一些）
 
 #+BEGIN_SRC bash
 go get -v github.com/elastic/beats
 #+END_SRC
-
 
 
 #+BEGIN_QUOTE
@@ -27,6 +29,8 @@ go get -v github.com/elastic/beats
 #+END_QUOTE
 
 ** 创建模块
+
+filebeat 里面有很多内置的模块，模块就是用来区分一个一个日志类型类别的，例如里面内置了 nginx 模块，k8s 模块，httpd 模块等等，所以我们要收集我们的应用日志，就不能使用里面的内置模块，通用模块，需要自己新建一个。
 
 进入 =C:\Users\chenf\go\src\github.com\elastic\beats\filebeat= 目录
 
@@ -39,10 +43,7 @@ go get -v github.com/elastic/beats
 make create-module MODULE=foo
 #+END_SRC
 
-
-
 然后项目目录会出现新的模块文件
-
 
 #+BEGIN_SRC bash
 module/foo
@@ -53,19 +54,17 @@ module/foo
     └── kibana
 #+END_SRC
 
-
 #+BEGIN_QUOTE
 在新版本中可以通过 =filebeat generate module= 等命令来创建 =module= 和 =fileset=，可以只用下载二进制包来构建了
 #+END_QUOTE
 
 * 配置 module 和 fileset
 
-上面我们已经创建了一个叫 =foo= 的模块，这里我先忽略一些无关紧要的配置，例如 kibana 的 dashboard 等，这里暂时不考虑，先把数据发送到 elasticsearch。
+上面我们已经创建了一个叫 =foo= 的模块，这里我先忽略一些无关紧要的配置，例如 kibana 的 dashboard 等，这里暂时不考虑，先把数据发送到 elasticsearch。那两个配置主要是用来配置  kibana 一些默认图表或者仪表盘的，是一些 template 文件，一般来说是在 kibana 配置好之后导出的，这篇文章我们对这两个配置不做展开，只要进到了 elastcisearch，接下来在 kibana 要建立什么样的报表很大的自由发挥空间，也需要业务来决定。
 
 module 其实没有什么可以配置的，我们直接创建一个 fileset，fileset 是 filebeat 模块中对一种类型的日志的概念，例如在 filebeat 自带的 nginx 模块中，access 和 error 两种类型的日志就是两个 fileset。
 
 我们通过命令创建一个叫 bar 的 fileset
-
 
 #+BEGIN_SRC bash
 make create-fileset MODULE=foo FILESET=bar
@@ -97,7 +96,6 @@ module/foo/bar
 ** 配置 fileset 的 log 文件路径
 打开 =module/foo/bar/manifest.yml= 这个文件，然后把相关的配置改为
 
-
 #+BEGIN_SRC yaml
 var:
   - name: paths
@@ -105,17 +103,19 @@ var:
       - /var/log/bar/fetch.log
 #+END_SRC
 
-设置 log 文件的存放路径为 =/var/log/bar/=
+这是为了设置 log 文件的存放路径为 =/var/log/bar/=
 
-
-然后我们向这个文件写入一行 json 数据，注意必须是一行，不能换行，因为 filebeat 的默认设置就是为行为单位读取每一条日志的
-
+然后我们向这个文件写入一行 json 数据用来测试，注意必须是一行，不能换行，因为 filebeat 的默认设置就是为行为单位读取每一条日志的
 
 #+BEGIN_SRC
 {"title":"i am heo", "name": "Mars"}
 #+END_SRC
 
-这里我们用的是 json 的日志结构，因为现在大多数的日志框架都默认输出 json 格式，当然也可以用其他格式来设置，现在先介绍 json 的解析方法
+这里我们用的是 json 的日志结构，因为现在大多数的日志框架都默认输出 json 格式，当然也可以用其他格式来设置，这里只介绍 json 的解析方法，要是像 nginx 标准输出那样，配置起来要麻烦很多，事实上，现在应用日志基本都是 json 格式。
+
+#+BEGIN_QUOTE
+当然，Apache common log 使用还是十分广泛的，也是一个日式格式的事实标准
+#+END_QUOTE
 
 其实到这里的话，只要我们配置好 filebeat 的设置，就可以发送到 elasticsearch 中了，只不过这个日志消息的 message 就是一整行的 json 内容，我们还需要将我们的 json 格式成相对应的 key 值
 
@@ -138,13 +138,11 @@ processors:
 
 这个配置描述了 decode_json_fields 这个 processors，解析两个字段，title 和 name，target 可以不设置
 
-
 到这里，bar 这个 filebeat 的配置已经基本设置完了
 
 ** 设置 filebeat 
 
 打开 filebeat 根目录下的 =filebeat.yml= 文件，对 elasticsearch output 进行设置
-
 
 #+BEGIN_SRC yaml
 output.elasticsearch:
@@ -167,13 +165,11 @@ output.elasticsearch:
 
 如果没有报错，就可以到 kibana 上去查看一下，会出现一个叫 filebeat-oyster 的索引
 
-
 到 kibana 的 discover 页面查看日志的效果如下
 
 [[image-url:./如何创建 Filebeat 应用模块/e8c4b0aa62f906904c9af2107b6a60f7]]
 
 * 打包 docker 镜像
-
 
 ** 构建
 如果要打包一个专属的 docker 镜像，操作如下
@@ -181,7 +177,6 @@ output.elasticsearch:
 选择一个下载回来或者编译出来的 filebeat 平台对应的 docker 基础镜像，这里我选择的是 =debian:buster=
 
 dockerfile 的配置如下
-
 
 #+BEGIN_SRC Dockefile
 FROM debian:buster
@@ -222,17 +217,18 @@ docker run --rm \
 ** 模板配置冲突
 当时我卡在这一步很久，不知道为什么自动覆盖模板不生效，导致发送数据给 ES 失败，要手工加载一下模板
 
-
 #+BEGIN_SRC bash
 ./filebeat export template > filebeat.template.json
 #+END_SRC
-
 
 #+BEGIN_SRC bash
  curl -X PUT "http://192.168.50.xxx:9200/_template/filebeat-test" -H 'Content-Type: application/json' -d@filebeat.template.json
 #+END_SRC
 
 上面 filebeat-test 是 filebeat 里面设置的 index 名
+
+* 源码
+最后附上我写这篇文章时候实战的 filebeat 配置代码 https://github.com/fwchen/oyster/tree/filebeat-archive/filebeat ，这个 filebeat 主要就是读取 server (nodejs) 出来的 log 文件，然后通过 filebeat 发送到 elastcisearch 上
 
 * 参考文章
 1. https://www.elastic.co/cn/blog/structured-logging-filebeat
