@@ -54,7 +54,7 @@ module/foo
 #+END_SRC
 
 #+BEGIN_QUOTE
-在新版本中可以通过 =filebeat generate module= 等命令来创建 =module= 和 =fileset=，可以只用下载二进制包来构建了
+在新版本中可以通过 =filebeat generate module= 等命令来创建 =module= 和 =fileset= 了，可以只用下载二进制包来构建了
 #+END_QUOTE
 
 * 配置 module 和 fileset
@@ -166,7 +166,7 @@ output.elasticsearch:
 
 然后到 kibana 的 discover 页面查看日志，效果如下
 
-[[image-url:./如何创建 Filebeat 应用模块/e8c4b0aa62f906904c9af2107b6a60f7]]
+[[image-url:./如何创建Filebeat应用模块/e8c4b0aa62f906904c9af2107b6a60f7]]
 
 * 打包 docker 镜像
 
