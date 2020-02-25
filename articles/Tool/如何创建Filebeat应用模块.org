@@ -29,7 +29,7 @@ go get -v github.com/elastic/beats
 #+END_QUOTE
 
 ** 创建模块
-filebeat 里面有很多内置的模块，模块就是用来区分一个一个日志类型类别的，例如里面内置了 nginx 模块，k8s 模块，httpd 模块等等，所以我们要收集我们的应用日志，就不能使用里面的内置模块，通用模块，需要自己新建一个。
+filebeat 里面有很多内置的模块，模块就是用来区分一个一个日志类型类别的，例如里面内置了 nginx 模块，k8s 模块，httpd 模块等等，所以我们要收集我们的应用日志，就不能使用里面的内置模块，通用模块，需要自己新建一个。
 
 进入 =C:\Users\chenf\go\src\github.com\elastic\beats\filebeat= 目录
 
@@ -177,7 +177,7 @@ output.elasticsearch:
 
 dockerfile 的配置如下
 
-#+BEGIN_SRC Dockefile
+#+BEGIN_SRC
 FROM debian:buster
 
 WORKDIR /filebeat
@@ -189,7 +189,6 @@ COPY ./filebeat.yml /filebeat/filebeat.yml
 
 
 CMD ["/filebeat/filebeat", "-e", "-c", "./filebeat.yml"]
-
 #+END_SRC
 
 构建思路就是直接把 go 的二进制包放进 docker 容器中，即可运行，然后把 module 等这些配置文件夹文件都 copy 进去，就能完美运行，这个是要先把 filebeat 下下来，读者也可以直接通过 filebeat 的官方镜像修改，那样会更好一些。
@@ -198,16 +197,13 @@ CMD ["/filebeat/filebeat", "-e", "-c", "./filebeat.yml"]
 
 可以参考一下我的命令
 
-#+BEGIN_SRC
-``` bash
+#+BEGIN_SRC bash
 docker run --rm \
 -e ES_HOSTS="'es.xx.com:443'" \
 -e ES_USERNAME="basic username" \
 -e ES_PASSWORD="basic password" \
 -v ../log:/var/log/oyster \
 2418200a2d13
-```
-
 #+END_SRC
 
 * FAQ
