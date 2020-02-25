@@ -1,4 +1,4 @@
-#+TITLE: 如何创建 Filebeat 应用模块
+#+TITLE: 如何创建 filebeat 应用模块
 #+AUTHOR: 陈放为
 
 * Filebeat
