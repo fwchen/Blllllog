@@ -23,7 +23,6 @@ filebeat 是一个轻量的日志收集器，虽然很多地方还不是特别�
 go get -v github.com/elastic/beats
 #+END_SRC
 
-
 #+BEGIN_QUOTE
 本文章基于有 Golang 基础上讲述，在这一步之前你应该构建好 Golang 开发环境
 #+END_QUOTE
