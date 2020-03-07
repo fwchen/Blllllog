@@ -2,6 +2,7 @@ title: 备份 Postgresql 到 Seafile
 date: 2020-02-28 18:54:02
 ---
 
+前段时间用 Python 写了一段小脚本，就是把 Postgresql 的备份数据备份到 Seafile 中，这种方法只适合小数据的数据库，聊做记录一番：
 
 ``` python
 import http.client
