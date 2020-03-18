@@ -15,8 +15,8 @@ date: 2020-01-11 18:54:02
 
 | 优点  | 缺点 |
 |---|---|
-| No locking - physical backups do not cause lock contention and do not depend on other connections releasing their locks |  High I/O pressure - copying the entire data directory may put significant pressure on your storage, but this doesn't have to necessarily apply if you're able to use some sort of filesystem-level snapshotting |
-| Entire instance backed up - there's no need to restore single databases - one restore process is enough for an entire cluster  |  Entire instance backed up - there's no way to restore single databases or single tables, one has to restore all or nothing |
+| No locking, physical backups do not cause lock contention and do not depend on other connections releasing their locks |  High I/O pressure - copying the entire data directory may put significant pressure on your storage, but this doesn't have to necessarily apply if you're able to use some sort of filesystem-level snapshotting |
+| Entire instance backed up , there's no need to restore single databases , one restore process is enough for an entire cluster  |  Entire instance backed up , there's no way to restore single databases or single tables, one has to restore all or nothing |
 | Almost instantaneous restore process - no need to execute SQL statements to get data back | Very large base backups - physical backups include all the indices and bloat and may therefore be much, much larger than SQL dumps |
 | PITR capabilities - the ability to go back in time | Need to archive WAL segments - you need to provide additional storage for binary log files |
 | Just works - you just run postgres with the backed up directory and it does the job | Binary format - having backup in binary files means you are limited to restoring it using exactly the same PostgreSQL version it was created with |
@@ -26,7 +26,7 @@ date: 2020-01-11 18:54:02
 
 | 优点 | 缺点 |
 |-------|-------|
-| Less data to copy - logical backups do not copy all data files, so they may impose a lower I/O pressure on the system than physical backups | Locking - logical backups are both prone to and cause lock waits |
+| Less data to copy - logical backups do not copy all data files, so they may impose a lower I/O pressure on the system than physical backups | Locking , logical backups are both prone to and cause lock waits |
 | Single database objects can be backed up - it's easy to backup and restore even a single table | |
 | Smaller backup files - SQL dumps do not contain index data or bloat, so they are much smaller than physical backups | Long restoration process - SQL statements have to be executed to get schema and data back |
 | No need for storing extra files - backups are self-contained | No PITR capabilities - a SQL dump can serve only as a snapshot of the data at the time it was created |
