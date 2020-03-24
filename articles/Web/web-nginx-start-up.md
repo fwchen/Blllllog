@@ -268,6 +268,53 @@ server {
 ### 负载均衡
 
 ## 常用配置项介绍
+
+## location
+
+> http://nginx.org/en/docs/http/ngx_http_core_module.html#location
+
+location 就是 nginx 配置中 URL 的匹配块，十分常用
+
+语法为
+
+```
+location optional_modifier location_match {
+
+    . . .
+
+}
+```
+
+当然，这个指令别的就不多说了，其中最容易出问题的是 location 块的匹配项有冲突时，优先级的问题。
+
+按照上面链接的官方文档，nginx 是先匹配前缀字符串（会匹配最长匹配的字符串，所以这时候跟配置文件书写顺序无关），再匹配正则表达式，如果找到正则表达式，则马上进行覆盖（如果按照配置文件书写顺序找到并命中了正则表达式，则不会往下再寻找，这时候跟书写顺序有关。）
+
+举个实际的错误例子：
+
+``` nginx
+location ~* \.(?:css|js|png|jpg|svg|woff2)$ {
+    add_header       'Cache-Control' 'max-age=604800';
+}
+
+location /api/ {
+    proxy_redirect     off;
+    proxy_pass         http://xx_upstream/;
+}
+```
+如果用了上面的配置，如果访问 DELETE /api/image/xxx.png 时，由于正则表达式会覆盖前端字符串的 location，也就是说这个请求不会转发到 xx_upstream。
+
+解决的方案是使用 `^~` 修饰符，用来打断寻找正则表达式。
+
+``` nginx
+location ^~ /api/ {
+    proxy_redirect     off;
+    proxy_pass         http://xx_upstream/;
+}
+```
+
+这里顺便把官方文档的例子给搬出来，如果是 `location /` 的匹配，并没有 location 等情况时，可以使用 `location = /` 来加速，因为这样的配置跳过了继续寻找正则表达式的 location。
+
+
 ### proxy_redirect
 > https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_redirect
 用作于重写 Header 中 `Location` 或 `Refresh` 的信息。
