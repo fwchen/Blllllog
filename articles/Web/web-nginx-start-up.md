@@ -267,6 +267,20 @@ server {
 
 ### 负载均衡
 
+## 常用配置项介绍
+### proxy_redirect
+> https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_redirect
+用作于重写 Header 中 `Location` 或 `Refresh` 的信息。
+如果代理后的 header 中 `Location: http://localhost:8000/two/some/uri/` ，而 nginx 配置为 
+
+``` nginx
+proxy_redirect http://localhost:8000/two/ http://frontend/one/;
+```
+
+最后返回的 Location 则被重写为 `Location: http://frontend/one/some/uri/`
+
+不过常用的做法是设置 `proxy_redirect off`， 令 Location 的地址跟客户端访问 nginx 的地址一致，因为如果配置了 `proxy_pass`， `proxy_redirect` 不设置的话，默认为 `proxy_redirect default`，这样会自动修改 Location 为 proxy_pass 的地址
+
 ## 参考
 - [https://zhuanlan.zhihu.com/p/33492951](https://zhuanlan.zhihu.com/p/33492951)
 - [https://sdk.cn/news/8067](https://sdk.cn/news/8067)
