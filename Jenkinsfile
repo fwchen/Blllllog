@@ -80,7 +80,7 @@ pipeline {
                 }
             }
             steps {
-                sh "docker image rm $DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER"
+                sh "docker image rm $DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER 2> /dev/null"
             }
         }
     }
