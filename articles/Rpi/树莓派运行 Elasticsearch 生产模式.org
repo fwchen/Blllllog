@@ -1,4 +1,5 @@
 #+TITLE: 树莓派运行 Elasticsearch 生产模式
+#+DATE: 2019-03-25
 #+AUTHOR: 陳放為
 
 
@@ -10,7 +11,7 @@
 #+END_QUOTE
 
 * 我当初为什么想在树莓派上运行 Elasticsearch
-当时我在家里的网络环境中搭建了一个 Elasticsearch，但是计算资源不多，想在自己用也用不了多少，树莓派比较省电，运行一个 Elasticsearch 节点，能用的话就美滋滋。二来，单节点的 Elasticsearch 的健康程度总是 yellow，我有一点点强迫症，如果多节点的 es 集群能把它变绿，那是最好。
+当时我在家里的网络环境中搭建了一个 Elasticsearch，但是计算资源不多，想在自己用也用不了多少，树莓派比较省电，运行一个 Elasticsearch 节点，能用的话就美滋滋。二来，单节点的 Elasticsearch 的健康程度总是 yellow，我有一点点强迫症，如果多节点的 es 集群能把它变绿，那是最好。
 
 * 部署
 
@@ -23,21 +24,21 @@ apt install elasticsearch
 service start elasticsearch
 #+END_SRC
 
-但是却没有任何反应，修改了配置也不行，那算了，不用这个了，搞不好版本也不对，直接下载官方包吧。
+但是却没有任何反应，修改了配置也不行，那算了，不用这个了，搞不好版本也不对，直接下载官方包吧。
 
 ** 直接下载官方包
 
-在 [[https://www.elastic.co/downloads/elasticsearch]] 这个官方下载地址上，下载 [MACOS/LINUXsha] 这个 tar 包。
+在 [[https://www.elastic.co/downloads/elasticsearch]] 这个官方下载地址上，下载 [MACOS/LINUXsha] 这个 tar 包。
 
 解压，然后更改配置 =config/elasticsearch.yml= 
 
 加上 =discovery.type=single-node= 这一句配置
 
-出乎我的想象，这货很顺利的跑起来了，只是需要加上 =-Xms512m -Xmx512m= 这个 jvm 设置，虽然树莓派有 1G 内存，但是高于 512 真的跑不起来。
+出乎我的想象，这货很顺利的跑起来了，只是需要加上 =-Xms512m -Xmx512m= 这个 jvm 设置，虽然树莓派有 1G 内存，但是高于 512M 真的跑不起来。
 
 结果。。
 
-结果很成功啊，=elasticsearch= 启动了起来，虽然有点慢，但是还是在 rpi:9200 看到熟悉的 json 
+结果很成功啊，=elasticsearch= 启动了起来，虽然有点慢，但是还是在 http://rpi:9200 看到熟悉的 json 
 
 
 #+BEGIN_SRC json
@@ -82,11 +83,11 @@ discovery.zen.ping.unicast.hosts: ["192.169.50.2"]
 
 然后就是 =discovery.zen.ping.unicast.hosts= 这个配置就是要写上其它节点的地址，可以是 ip，也可以是域名，也可以是 host。这是我填的是我另外 docker 母机的地址，但是导致一个问题，因为在我另外的一个节点是运行在 =docker= 中的，暴露了 =9200= 和 =9300= 给母鸡。
 
-docker 母机机器的 ip 是 =172.17.0.6=，elasticsearch 大概会告诉其它节点它自己的 ip，所以树莓派上的 es 虽然通过 =192.169.50.2= 找到了节点，但是还是会报错，说找不到 =172.17.0.6= 这个地址
+docker es的 ip 是 =172.17.0.6=，elasticsearch 大概会告诉其它节点它自己的 ip，所以树莓派上的 es 虽然通过 =192.169.50.2= 找到了节点，但是还是会报错，说找不到 =172.17.0.6= 这个地址
 
-我细想了一下， 好像也没有别的办法，es 的可配置项也不多，唯有用 iptables 这个好用的神奇把出口 ip 改一下
+我细想了一下， 好像也没有别的办法，es 的可配置项也不多，唯有用 iptables 这个好用的神器把出口 ip 改一下
 
-遂用下面的命令在树莓派上的母鸡上一敲，问题迎刃而解
+遂用下面的命令在树莓派上的母鸡运行，问题迎刃而解
 
 
 #+BEGIN_QUOTE
@@ -94,18 +95,20 @@ es 的 docker 镜像没有安装 iptables，不然直接在 docker 容器里面�
 #+END_QUOTE
 
 #+BEGIN_SRC bash
-iptables -t nat -A OUTPUT -d 172.17.0.6 -j DNAT --to-destination 192.169.50.2
+iptables -t nat -A OUTPUT -d 172.17.0.6 -j DNAT --to-destination 192.168.50.2
 #+END_SRC
 
+意思就是告诉树莓派，出口 172.17.0.6 的流量换到 192.168.50.2
+
 ** Server VM & system_call_filter 问题
-用 iptables 把 ip 的问题解决了之后，又遇到了两个新的问题，原因是 es 运行生产模式之后，要强制运行 =bootstrap check= ，说白了就是运行环境要把单节点的开发模式严格，其中树莓派上遇到了两个
+用 iptables 把 ip 的问题解决了之后，又遇到了两个新的问题，原因是 es 运行生产模式之后，要强制运行 =bootstrap check= ，说白了就是运行环境要把单节点的开发模式严格
 
 - Server VM
 - system_call_filter
 
 [[image-url:./树莓派运行 Elasticsearch 生产模式/8460377f7d2b454d3614554fc4493dd2]]
 
-如图示，bootstrap check 报了两行错误
+如图示，bootstrap check 报了两段错误
 
 #+BEGIN_SRC bash
 [2019-03-16T23:26:09,592][WARN ][o.e.b.Natives            ] [node-raspberry] unable to load JNA native support library, native methods will be disabled.
@@ -184,7 +187,7 @@ ERROR: [2] bootstrap checks failed
 
 *** 解决 system_call_filter
 
-google 了一下，在 =config/elasticsearch.yml= 中加入一行配置即可解决
+google 了一下，这是需要系统设置一下参数，因为生产模式的 es 更耗资源什么的，在 =config/elasticsearch.yml= 中加入一行配置即可解决
 
 
 #+BEGIN_QUOTE yaml
@@ -209,7 +212,7 @@ JVM Server模式与client模式启动，最主要的差别在于：-Server模式
 这个参数
 
 *** vm.max_map_count
-还需要解决一个问题，就是 elasticsearch 教程到处都会将的 vm.max_map_count，这个又是一个命令解决
+还需要解决一个问题，就是 elasticsearch 教程到处都会讲的 vm.max_map_count，这个又是一个命令解决
 
 
 #+BEGIN_SRC bash
@@ -218,9 +221,9 @@ sysctl -w vm.max_map_count=262144
 
 * 运行成功
 
-修改了一系列的参数之后，elasticsearch 终于在树莓派上运行了起来
+修改了一系列的参数之后，elasticsearch 终于在树莓派上运行了起来，不过速度非常慢
 
-* 性能不足
+* 结论：还是性能不足
 
 刚开始运行的时候，树莓派上的 elasticsearch 表现的还可以，很快就把其它节点上的数据给同步了，但是我在用 kibana 的时候，基本上很多查询都会报 timeout 错误，而且反应非常慢，而我自己把树莓派的 elasticsearch 停了之后，一切都恢复了，看来树莓派这种 arm 小鸡运行 elasticsearch 还是不行
 
