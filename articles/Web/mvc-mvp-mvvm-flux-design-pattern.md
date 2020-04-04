@@ -66,7 +66,6 @@ MVVM模式 (Presentation Model）设计模式的变体。MVVM以相同的方式�
 ![mvp](./mvc-mvp-mvvm-flux-design-pattern/mvvm.png)
 
 
-
 # FLUX
 
 随着 React 的强势兴起，Facebook 提出的新架构 Flux 逐渐映入人们的眼前，当然，Flux 真正流行在社区里流行起来的时候是 Redux 出现的时候。Redux 出现的时候，大家都非常惊讶的发现，呀，原来前端设计模式还能这样搞。大家纷纷开始研究起 Flux 来，Flux 确实颠覆了前端多年以来的写法，而且在那个时候，React 作为一个纯 UI 框架，一直缺乏整体架构的支撑，加上 Redux 确实能解决前端一些状态管理的难题，Redux 就这样作为一个状态管理解决方案被广泛采用。
@@ -79,3 +78,5 @@ MVVM模式 (Presentation Model）设计模式的变体。MVVM以相同的方式�
 [stackoverflow what-are-mvp-and-mvc-and-what-is-the-difference](https://stackoverflow.com/questions/2056/what-are-mvp-and-mvc-and-what-is-the-difference)
 
 [MVC，MVP 和 MVVM 的图示-阮一峰](http://www.ruanyifeng.com/blog/2015/02/mvcmvp_mvvm.html)
+
+[Github Facebook/flux](https://github.com/facebook/flux/tree/master/examples)
