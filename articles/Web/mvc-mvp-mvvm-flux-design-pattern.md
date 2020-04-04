@@ -73,6 +73,9 @@ MVVM模式 (Presentation Model）设计模式的变体。MVVM以相同的方式�
 ![mvp](./mvc-mvp-mvvm-flux-design-pattern/flux-simple-f8-diagram-with-client-action-1300w.png)
 
 
+# 设计模式的趋势
+
+MVC, MVP, MVVM，FLUX 这四种模式是按顺序出现的，其实也代表着一些趋势的变化，一开始 MVC 中的 Model 和 View 和 Controller 是十分临近的，整个模式是偏服务端的，到 MVP，MVVM，这两个设计模式属于纯前端了，Model 的重要性也开始有一点降低，更多重点开始转移到 View 中。到 Flux，已经彻底转移了 Model 的概念，前端中不在包含领域模型的逻辑和概念，前端只有数据模型和 UI 模型，数据都放在 Reducer 中处理，这里面的数据基本上都是展示数据，不涉及领域模型，而 View 和 Component 关注的事也只是 UI 和交互而已，可以说，到 Flux，前端已经开始独立化了，职责也更分明，也跟现在社区“大前端”所契合。
 
 # 参考
 [stackoverflow what-are-mvp-and-mvc-and-what-is-the-difference](https://stackoverflow.com/questions/2056/what-are-mvp-and-mvc-and-what-is-the-difference)
