@@ -1,6 +1,7 @@
 #+TITLE: 记一次研究浏览器网络请求挂起过程
 #+AUTHOR: 陳放為
 
+* 记一次研究浏览器网络请求挂起过程
 最近排查了一个 Chrome 中请求挂起的问题
 
 ** 起因
@@ -101,9 +102,14 @@ Chrome 缓存机制其实很简单，如果 url 不相同，那么缓存文件�
 然后通过 =source_dependency= 链接🔗定位，最后发现 stalled 的时间里，卡在了 =SOCKET_POOL_STALLED_MAX_SOCKETS_PER_GROUP= 里
 
 ** 虚惊一场
+唔，这么看来确实超过6条请求导致的，但是页面上没有同时发生6条请求啊，突然，看到下面的请求图，等等！
 [[image-url:./记一次研究浏览器网络请求挂起过程/48423aaf80c447b3071203d3f908be15]]
 
+
 [[image-url:./记一次研究浏览器网络请求挂起过程/b3635a105a1a258a7a4bb746d04ce91b]]
+
+如上图，可以看到很多请求都是后缀为 .map 的文件，就是打包出来的 source map 文件，打开 chrome 的 devtool 的时候，chrome 会自动请求这些 source map 文件来方便 debug，但是这些在 network 这个 tab 里是看不见的，但是也是确实请求了的，所以其实网站的资源请求其实没有问题，只是打开了 devtool 的时候才出现请求的挂起，可谓是虚惊一场
+
 
 ** 结论
 
