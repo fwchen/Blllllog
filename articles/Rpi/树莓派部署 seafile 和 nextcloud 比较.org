@@ -14,11 +14,11 @@
 我都懒得重新装了，插上之前的 tf 卡直接开干
 
 ** 路由器分享文件系统测试
-我没有傻到最后一步才用树莓派接入路由器分享出来的文件系统
+我要用我的路由器分享网络文件，然后树莓派挂载上去，当然，我没有傻到最后一步才用树莓派接入路由器分享出来的文件系统，不然出了问题又要重新弄，这个关键步骤还是先测试一下
 
 先把硬盘怼到我路由器后面的 USB3.0 接口上，登陆路由器管理页面，能直接看到已经识别到了硬盘，还是挺顺利的
 
-然后准备把这个硬盘分享出去，鉴于之前我试过树莓派 mount samba 协议的文件系统，死活不成功，所以我这次选择用 nfs 协议
+然后准备把这个硬盘分享出去，鉴于之前我试过树莓派挂载 samba 协议的文件系统，死活不成功，所以我这次选择用 nfs 协议
 
 参照这个文章 https://sysadmins.co.za/setup-a-nfs-server-and-client-on-the-raspberry-pi/, 在路由器上设置了之后到树莓派上去 mount 
 
@@ -48,7 +48,7 @@ sudo sh get-docker.sh
 #+END_SRC
 
 *** 安装 mysql 
-因为 seafile 和 nextcloud 都要用到 mysql， 所以要先安装  mysql ，准备用 docker 启动一个，*但是 docker 的 mysql 镜像没有 arm 架构集*，无法运行
+因为 seafile 和 nextcloud 都要用到 mysql， 所以要先安装  mysql ，准备用 docker 启动一个，但是 docker 的 mysql 镜像没有 arm 架构集，无法运行
 
 于是在树莓上用 apt install mysql 来安装，然后才发现我之前在树莓派上安装过，但是 root 密码忘了，我也就作罢了，我记得 mysql 改密码还挺麻烦的，seafile 和 nextcloud 都支持 sqlite3，那就先用 sqlite3 吧，以后再想办法迁移到 mysql
 
@@ -56,15 +56,12 @@ sudo sh get-docker.sh
 *** 安装 seafile
 一开始安装 seafile 的时候我是想直接用 docker 启动的，但是一运行发现不行，seafile 没有编译 arm 架构的，那没办法了，只能手工安装，只是太麻烦了。
 
-#+BEGIN_QUOTE
-ps: docker 实在真的是太方便了
-#+END_QUOTE
 
 现在官网文档中 [[http://www.seafile.com/en/download/#server]] 找到树莓派编译好的包，然后按照 =Deploying Seafile with SQLite= 这个章节的教程，开始部署 seafile
 
 部署操作还是算简单的，应该没有什么难度，唯一感觉有点且想吐槽的是，seafile 启动要启动两个东西，一个是 seafile，一个是 seahub，而在配置项里面只有 seahub service 的端口配置，虽然文档里有说明，但是还是很容易误导人，我就搞了半天发现 8001 不是 web 端口，无语😓
 
-把 seafile 启动了之后，发现 seafile 服务正常，admin 账号成功登录和上床文件，算是成功了
+把 seafile 启动了之后，发现 seafile 服务正常，admin 账号成功登录和上传文件，算是成功了
 
 *** mount nfs 问题。
 
@@ -111,10 +108,11 @@ sudo mount  192.168.50.1:/mnt/sda1/nfs /mnt/remote -o user=pi,nolock
 
 seafile 如果只在内网上能用，也好像也没有什么玩头，而且 seafile 和 nextcloud 都支持手机端和电脑端，但是我家的宽带是动态获取 ip 的，也就是处于 NAT 下，而且经过我检查，处在了多层 NAT 下，那么就无法用过 DDNS 绑定我家宽带的动态 ip 了，那么只能通过内网穿透技术把内网的 seafile 服务暴露到外网上
 
-#+BEGIN_QUOTE
+#+BEGIN_SRC bash
 vi /etc/systemd/system/frps.service 新建此文件，并写入以下内容
+#+END_SRC
 
-#+BEGIN_QUOTE
+#+BEGIN_SRC bash
 [Unit]
 Description=frps daemon
 
@@ -124,15 +122,15 @@ ExecStart=/usr/bin/frps -c /etc/frps/frps.ini
 
 [Install]
 WantedBy=multi-user.target
-#+END_QUOTE
+#+END_SRC
 
 
 启动并设为开机自启。
 
+#+BEGIN_SRC bash
 $ systemctl start frps
 $ systemctl enable frps
-
-#+END_QUOTE
+#+END_SRC
 
 
 然后按照文档配置文件：
@@ -197,6 +195,8 @@ server {
 docker run -d -p 8080:80 -v /mnt/nfs/nextcloud:/var/www/html nextcloud
 #+END_SRC
 
+这样就搞定了，可以登陆 8080 端口进行设计，界面也比较简洁好看，功能也比 seafile 多一点
+
 需要注意的是，nextcloud 的数据目录挂载的 nfs 同样需要 nolock 的挂载参数，不然一样启动不了。
 
 
@@ -212,7 +212,7 @@ docker run -d -p 8080:80 -v /mnt/nfs/nextcloud:/var/www/html nextcloud
 
 1.bug多（ios，android 都有同步相片等bug）
 2.功能不多
-3. 一些设计不太合理（例如需要绑定一个域名，seahub上传地址固定等）
+3.一些设计不太合理（例如需要绑定一个域名，seahub上传地址固定等）
 
 ** nextcloud
 优点：
@@ -223,4 +223,4 @@ docker run -d -p 8080:80 -v /mnt/nfs/nextcloud:/var/www/html nextcloud
 缺点：
 1. mac 客户端太丑
 
-总的来说，其实 nextcloud 是比 seafile 更好的，但是令我无法忍受的是 nextcloud 的 mac 客户端太丑了，简直是上个年代产物，无奈之下我只能选择了 seafile 作为正式使用的网盘。
+总的来说，其实 nextcloud 是比 seafile 更好的，但是令我无法忍受的是 nextcloud 的 mac 客户端太丑了，简直是上个年代产物，无奈之下我只能选择了 seafile 作为正式使用的网盘，并且支持一下国产也挺好。
