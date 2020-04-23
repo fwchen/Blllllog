@@ -285,6 +285,43 @@ public class MyServerAuthenticationSuccessHandler implements ServerAuthenticatio
 # Resource Service 搭建
 Resource Service 就是被保护的资源，当然也可以是其他类型的服务。
 
+``` yaml
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://[keycloak_host]/auth/realms/orange
+          jwk-set-uri: http://[keycloak_host]/auth/realms/orange/protocol/openid-connect/certs
+```
+
+``` kotlin
+@Configuration
+class SecurityConfig : WebSecurityConfigurerAdapter() {
+
+    @Throws(Exception::class)
+    override fun configure(http: HttpSecurity) {
+        // TODO: check role
+        // https://stackoverflow.com/questions/47069345/how-to-use-spring-security-remotetokenservice-with-keycloak
+        // https://github.com/spring-projects/spring-security/wiki/OAuth-2.0-Migration-Guide
+        http
+                .authorizeRequests()
+                .antMatchers("/**")
+                .hasAuthority("SCOPE_openid")
+                // .antMatchers("/**")
+                // .hasRole("USER")
+                .anyRequest().authenticated()
+                .and()
+                .headers().frameOptions().disable().xssProtection().disable()
+                .and()
+                .formLogin().disable()
+                .oauth2ResourceServer()
+                .jwt()
+    }
+}
+
+```
+
 # 前端
 // sessionStorage
 
