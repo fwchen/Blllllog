@@ -3,11 +3,7 @@ date: 2020-04-22
  13:31:26
 ---
 
-# OIDC
-
-// TODO OIDC
-
-这篇文章介绍一下，如何搭建一个基于 Spring Gateway 和 Keycloak 的 OAuth2 资源保护系统，这里只介绍一些思路和核心代码，向有一定基础的读者分享思路
+这篇文章介绍一下，如何搭建一个基于 Spring Gateway 和 Keycloak 的 OAuth2 资源保护系统，这里只介绍思路和核心代码，供有一定基础的读者分享思路
 
 首先我们需要了解这个小系统需要的组件，分别是
 - OAuth2 Server，这个我们选用的是 KeyCloak
@@ -19,7 +15,21 @@ date: 2020-04-22
 ![](./spring-keyclack-oauth-gateway/demo.png)
 > 图片出自 https://spring.io/blog/2019/08/16/securing-services-with-spring-cloud-gateway
 
-认证流程是，客户端（浏览器）访问应用，此时没有认证状态，然后重定向到单点登录平台，也就是 KeyCloak，然后在 KeyCloak 上进行用户名密码认证，或者是其他认证，成功后，KeyCloak 返回认证后的信息，然后客户端（Gateway）通过这些信息，再生成一个 Token，传到被保护的 Resouce Server，Resouce Server 拿到这个 Token 再向 KeyCloak 进行权限的认证，如果认证都通过，则允许对资源进行操作
+认证流程是，客户端（浏览器）访问应用，此时没有认证状态，然后重定向到单点登录平台，也就是 KeyCloak，然后在 KeyCloak 上进行用户名密码认证(OIDC)，成功后，KeyCloak 返回认证后的信息，然后客户端（Gateway）通过这些信息，再生成一个 Token，传到被保护的 Resouce Server，Resouce Server 拿到这个 Token 再向 KeyCloak 进行权限的认证，如果认证都通过，则允许对资源进行操作
+
+## OIDC
+我们会使用 OIDC 作为用户登录认证
+
+### 什么是 OIDC
+
+看一下官方的介绍（http://openid.net/connect/）
+> OpenID Connect 1.0 is a simple identity layer on top of the OAuth 2.0 protocol. It allows Clients to verify the identity of the End-User based on the authentication performed by an Authorization Server, as well as to obtain basic profile information about the End-User in an interoperable and REST-like manner.
+>
+> OpenID Connect allows clients of all types, including Web-based, mobile, and JavaScript clients, to request and receive information about authenticated sessions and end-users. The specification suite is extensible, allowing participants to use optional features such as encryption of identity data, discovery of OpenID Providers, and session management, when it makes sense for them.
+
+简单的来说，就是在 OAuth2 上多做了一个身份层，是一个基于OAuth2协议的身份认证标准协议。OIDC 使用 OAuth2 的授权服务器来为第三方客户端提供用户的身份认证，并把对应的身份认证信息传递给客户端，且可以适用于各种类型的客户端（比如服务端应用，移动APP，前端 SPA ），且完全兼容 OAuth2。
+
+所以，我们只需要使用 Spring Security 的 OAuth2 模块进行配置即可
 
 # Api Gateway 搭建
 
@@ -47,7 +57,7 @@ docker run -p 6180:8080 -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=123456 -d jb
 
 然后创建一个 Realm
 
-![](./spring-keyclack-oauth-gateway/create-realm.png)
+![](./spring-keyclack-oauth-gateway/create_realm.png)
 
 然后创建一个客户端 Client
 
@@ -58,12 +68,23 @@ docker run -p 6180:8080 -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=123456 -d jb
 接着创建一个用户
 ![](./spring-keyclack-oauth-gateway/create_user.png)
 
+最后，我们需要使用到 OpenID 的一些 URI，我们可以打开这个 URL 来查到全面的 URI，这些 URI 会 OAuth 客户端中用到
+
+`http://192.168.50.251:6180/auth/realms/orange/.well-known/openid-configuration`
+
+> 需要我们的 ip 和 realm 名字替换成实际的
+
+![](./spring-keyclack-oauth-gateway/realm_openid_configuration.png)
+
+
 # 与 Gateway 集成
+
 ## 授权类型
 然后我们需要在 Gateway 上集成 OAuth2，我们选择的授权类型是 Authorization Code Grant，虽然我们这个 Demo 的前端也是一个 SPA，可以直接用前端作为一个 OAuth2 客户端，然后选择 Implicit Grant 作为授权类型。
 // TODO 优缺点
 
-// TODO 贴流程图
+
+![](./spring-keyclack-oauth-gateway/code_flow.png)
 
 ## Maven 依赖
 ``` xml
@@ -97,7 +118,6 @@ spring:
             client-id: orange
             client-secret: a1246398-4c2f-46bd-b83d-9b1313f3378d
 ```
-
 
 然后我们继续通过 yaml 文件配置 gateway 的配置，其中 `http://localhost:8260` 是我们接下来要创建 RS 服务。
 
@@ -248,9 +268,7 @@ public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http,
 
 假设我们前端运行在 `http://localhost:3000` 这个域名端口下，然后我们打开了 `http://localhost:3000/orange_list` 这页面，在这个页面进行登陆授权
 
-然后我们 redirect 重定向到我们的 gateway 地址 `http://localhost:8080`，因为我们并没有授权过的 session，所以 gateway 会构造 Url 到 KeyCloak 中授权，这个 URL 大概长这样
-
-// TODO url
+然后我们 redirect 重定向到我们的 gateway 地址 `http://localhost:8080`，因为我们并没有授权过的 session，所以 gateway 会构造 Url 到 KeyCloak 中授权，这个 URL 大概长这样 `http://192.168.50.251:6180/auth/realms/orange/protocol/openid-connect/auth?response_type=code&client_id=humpback-gateway&scope=openid%20address%20email%20microprofile-jwt%20offline_access%20phone%20profile%20roles%20user%20web-origins&state=VHp-YIiBsy9G-Kxm206bGHmm2gGRjF7D8Eu5rGpZVtM%3D&redirect_uri=http://localhost:8080/login/oauth2/code/keycloak&nonce=KzOiAXpzqrRXK67qzYdF5wK2pH_KGCUaBEHdz3pdnYI`
 
 可以看到这个 URL 中的 redirect_url 指的是 gateway 地址，因为在 keycloak 授权完成之后，keycloak 会生成 // TODO，然后 gateway 会再次请求 OAuth Server（也就是 KeyCloak）获取 Access Token
 
@@ -284,6 +302,44 @@ public class MyServerAuthenticationSuccessHandler implements ServerAuthenticatio
 
 # Resource Service 搭建
 Resource Service 就是被保护的资源，当然也可以是其他类型的服务。
+
+创建一个 kotlin 的 Orange data 类
+``` kotlin
+data class Orange(var name: String, var queryUserId: String) {}
+```
+
+实现简单的 RestController，同样也是 Kotlin 代码
+``` kotlin
+import org.springframework.http.MediaType
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.oauth2.jwt.Jwt
+import org.springframework.web.bind.annotation.*
+
+@RestController
+class OrangeController() {
+    @RequestMapping(value = ["/oranges"], method = [RequestMethod.GET], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun querySpaces(@AuthenticationPrincipal() principal: Jwt): List<Orange> {
+        val orange1 = Orange("Orange1", principal.claims.get("sub") as String)
+        val orange2 = Orange("Orange2", principal.claims.get("sub") as String)
+        return listOf(orange1, orange2)
+    }
+}
+```
+
+
+然后我们配置 Spring Security 的 resource server
+
+我们需要用到 `spring-boot-starter-oauth2-resource-server` 这个包
+
+``` xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+</dependency>
+```
+
+然后在 application.yaml 中进行配置
+
 
 ``` yaml
 spring:
@@ -319,8 +375,17 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
                 .jwt()
     }
 }
-
 ```
+
+最后我们在 Postman 中进行最后的测试，Get `http://localhost:8080/oranges` 来获取两个 Orange 资源
+
+我们需要在 Postman 的 Authorization 选项卡中获取 OAuth2 的 Access Token，Spring Security 会自动 Decode 去再向 KeyCloak 获取一遍 Access Token，然后创建 Session
+
+> 当然 Postman 的步骤比较麻烦，也可以直接通过浏览器打开 http://localhost:8080， 浏览器会重定向到 KeyCloak 进行认证，不过认证成功后会跳转到前端 http://localhost:3000，这时候再访问 http://localhost:8080/oranges 即可
+
+![](./spring-keyclack-oauth-gateway/postman_oranges.png)
+
+可以看到我们已经获取到了两个 Orange JSON 对象
 
 # 前端
 // sessionStorage
