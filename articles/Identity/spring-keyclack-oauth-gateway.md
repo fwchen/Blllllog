@@ -385,6 +385,9 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
 }
 ```
 
+> 上面的代码中，还有一个问题还没有解决，就是 `hasRole` 这个方法一直不生效，也上网查阅过很多资料，包括在 keyCloak 中对 Role 进行 Mapping，但是还是不生效，在 Spring Security 的源码中看了一下，好像在 Web Reactive 的代码中没有找到 hasRole 的相关代码，也就暂时放下了，读者在参考这篇文章实现的时候要多注意一下。
+
+
 最后我们在 Postman 中进行最后的测试，Get `http://localhost:8080/oranges` 来获取两个 Orange 资源
 
 我们需要在 Postman 的 Authorization 选项卡中获取 OAuth2 的 Access Token，Spring Security 会自动 Decode 去再向 KeyCloak 获取一遍 Access Token，然后创建 Session
@@ -394,7 +397,6 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
 ![](./spring-keyclack-oauth-gateway/postman_oranges.png)
 
 可以看到我们已经获取到了两个 Orange JSON 对象
-
 # 前端
 前端的集成方案就比较简单，如果是服务端模版生成的前端，还是单页面 Javascript 应用程序，只要没有登录，就直接重定向到 gateway 的地址，然后 gateway 处理完 KeyCloak 的登录流程后，就会自动跳转回前端页面。
 
