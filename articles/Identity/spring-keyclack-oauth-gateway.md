@@ -3,7 +3,7 @@ date: 2020-04-22
  13:31:26
 ---
 
-这篇文章介绍一下，如何搭建一个基于 Spring Gateway 和 Keycloak 的 OAuth2 资源保护系统，这里只介绍思路和核心代码，供有一定基础的读者分享思路
+这篇文章介绍一下，如何搭建一个基于 Spring Gateway 和 KeyCloak 的 OAuth2 资源保护系统，这里只介绍思路和核心代码，供有一定基础的读者分享思路
 
 首先我们需要了解这个小系统需要的组件，分别是
 - OAuth2 Server，这个我们选用的是 KeyCloak
@@ -15,10 +15,10 @@ date: 2020-04-22
 ![](./spring-keyclack-oauth-gateway/demo.png)
 > 图片出自 https://spring.io/blog/2019/08/16/securing-services-with-spring-cloud-gateway
 
-认证流程是，客户端（浏览器）访问应用，此时没有认证状态，然后重定向到单点登录平台，也就是 KeyCloak，然后在 KeyCloak 上进行用户名密码认证(OIDC)，成功后，KeyCloak 返回认证后的信息，然后客户端（Gateway）通过这些信息，再生成一个 Token，传到被保护的 Resouce Server，Resouce Server 拿到这个 Token 再向 KeyCloak 进行权限的认证，如果认证都通过，则允许对资源进行操作
+认证流程是，客户端（浏览器）访问应用，此时没有认证状态，然后重定向到单点登录平台，也就是 KeyCloak，然后在 KeyCloak 上进行用户名密码认证(OIDC)，成功后，KeyCloak 返回认证后的信息，然后客户端（Gateway）通过这些信息，再生成一个 Token，传到被保护的 Resource Resource Server 拿到这个 Token 再向 KeyCloak 进行权限的认证，如果认证都通过，则允许对资源进行操作。
 
 ## OIDC
-我们会使用 OIDC 作为用户登录认证
+我们会使用 `OIDC` 作为用户登录认证
 
 ### 什么是 OIDC
 
@@ -27,7 +27,7 @@ date: 2020-04-22
 >
 > OpenID Connect allows clients of all types, including Web-based, mobile, and JavaScript clients, to request and receive information about authenticated sessions and end-users. The specification suite is extensible, allowing participants to use optional features such as encryption of identity data, discovery of OpenID Providers, and session management, when it makes sense for them.
 
-简单的来说，就是在 OAuth2 上多做了一个身份层，是一个基于OAuth2协议的身份认证标准协议。OIDC 使用 OAuth2 的授权服务器来为第三方客户端提供用户的身份认证，并把对应的身份认证信息传递给客户端，且可以适用于各种类型的客户端（比如服务端应用，移动APP，前端 SPA ），且完全兼容 OAuth2。
+简单的来说，就是在 OAuth2 上多做了一个身份层，是一个基于 OAuth2 协议的身份认证标准协议。OIDC 使用 OAuth2 的授权服务器来为第三方客户端提供用户的身份认证，并把对应的身份认证信息传递给客户端，且可以适用于各种类型的客户端（比如服务端应用，移动APP，前端 SPA ），且完全兼容 OAuth2。
 
 所以，我们只需要使用 Spring Security 的 OAuth2 模块进行配置即可
 
@@ -55,7 +55,7 @@ docker run -p 6180:8080 -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=123456 -d jb
 
 > 这个 Admin 密码设成 123456，在正式一点的环境肯定也是不行的，不过我们是 Demo，就不需要管那么多了
 
-然后创建一个 Realm
+然后创建一个 `Realm`
 
 ![](./spring-keyclack-oauth-gateway/create_realm.png)
 
@@ -72,7 +72,7 @@ docker run -p 6180:8080 -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=123456 -d jb
 
 `http://192.168.50.251:6180/auth/realms/orange/.well-known/openid-configuration`
 
-> 需要我们的 ip 和 realm 名字替换成实际的
+> 需要将我们的 ip 和 realm 名字替换成实际的
 
 ![](./spring-keyclack-oauth-gateway/realm_openid_configuration.png)
 
@@ -80,11 +80,18 @@ docker run -p 6180:8080 -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=123456 -d jb
 # 与 Gateway 集成
 
 ## 授权类型
-然后我们需要在 Gateway 上集成 OAuth2，我们选择的授权类型是 Authorization Code Grant，虽然我们这个 Demo 的前端也是一个 SPA，可以直接用前端作为一个 OAuth2 客户端，然后选择 Implicit Grant 作为授权类型。
-// TODO 优缺点
-
+然后我们需要在 Gateway 上集成 OAuth2，我们选择的授权类型是 `Authorization Code Grant`，虽然我们这个 Demo 的前端也是一个 SPA，可以直接用前端作为一个 OAuth2 客户端，然后选择 `Implicit Grant` 作为授权类型，但是我们还是选择了 `Authorization Code Grant`，这种授权类型的流程见下图
 
 ![](./spring-keyclack-oauth-gateway/code_flow.png)
+
+> 图片出自 [An OAuth 2.0 introduction for beginners](https://itnext.io/an-oauth-2-0-introduction-for-beginners-6e386b19f7a9)
+
+为什么要选择 `Authorization Code Grant` 而不是 `Implicit Grant`，考虑的其实是一个安全性问题。
+
+> 在使用隐式许可类型时需要对它严苛的局限性有所认识。首先，使用这种许可流程的客户端无法持有客户端密钥，因为无法对浏览器隐藏密钥。但由于这种许可流程只使用授权端点而不使用令牌端点，因此这个限制不会影响其功能，因为不要求客户端在授权端点上进行身份认证。然而，由于缺少对客户端进行身份认证的手段，确实会影响这种许可类型的安全等级，因此要谨慎使用。另外，隐式许可流程不可用于获取刷新令牌。因为浏览器内的应用具有短暂运行的特点，只会在被加载到浏览器的期间保持会话，所以刷新令牌在这里的作用非常有限。而且，和其他许可类型不同，这种许可类型会假设资源拥有者一直在场，必要时可以对客户端重新授权。在这种许可类型下，授权服务器仍然可以遵循首次使用时信任（TOFU）的原则，通过允许重新授权获得无缝的用户体验。
+>
+>贾斯廷·里彻,安东尼奥·桑索. OAuth 2实战 (Chinese Edition) (Kindle 位置 1940-1945). Kindle 版本. 
+
 
 ## Maven 依赖
 ``` xml
@@ -139,7 +146,7 @@ spring:
 
 这个问题可以看 https://github.com/spring-cloud/spring-cloud-security/issues/175 这个 Github Issue
 
-下面有一个现成的解决方案，就是自定义一个 TokenRelay，实现如下：
+这个 Issue 下面有一个现成的解决方案，就是自定义一个 TokenRelay，实现如下：
 
 ``` java
 import java.time.Duration;
@@ -248,8 +255,6 @@ public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http,
 
     http.authorizeExchange().anyExchange().authenticated();
 
-    // http.exceptionHandling().accessDeniedHandler(myAccessDeniedHandlerWebFlux).authenticationEntryPoint((exchange, exception) -> Mono.error(exception));
-
     http.headers().frameOptions().disable().xssProtection().disable();
     http.csrf().disable();
     http.httpBasic().disable();
@@ -268,11 +273,15 @@ public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http,
 
 假设我们前端运行在 `http://localhost:3000` 这个域名端口下，然后我们打开了 `http://localhost:3000/orange_list` 这页面，在这个页面进行登陆授权
 
-然后我们 redirect 重定向到我们的 gateway 地址 `http://localhost:8080`，因为我们并没有授权过的 session，所以 gateway 会构造 Url 到 KeyCloak 中授权，这个 URL 大概长这样 `http://192.168.50.251:6180/auth/realms/orange/protocol/openid-connect/auth?response_type=code&client_id=humpback-gateway&scope=openid%20address%20email%20microprofile-jwt%20offline_access%20phone%20profile%20roles%20user%20web-origins&state=VHp-YIiBsy9G-Kxm206bGHmm2gGRjF7D8Eu5rGpZVtM%3D&redirect_uri=http://localhost:8080/login/oauth2/code/keycloak&nonce=KzOiAXpzqrRXK67qzYdF5wK2pH_KGCUaBEHdz3pdnYI`
+然后我们 redirect 重定向到我们的 gateway 地址 `http://localhost:8080`，因为我们并没有授权过的 session，所以 gateway 会构造 URL 到 KeyCloak 中授权，这个 URL 大概长这样 `http://192.168.50.251:6180/auth/realms/orange/protocol/openid-connect/auth?response_type=code&client_id=humpback-gateway&scope=openid%20address%20email%20microprofile-jwt%20offline_access%20phone%20profile%20roles%20user%20web-origins&state=VHp-YIiBsy9G-Kxm206bGHmm2gGRjF7D8Eu5rGpZVtM%3D&redirect_uri=http://localhost:8080/login/oauth2/code/keycloak&nonce=KzOiAXpzqrRXK67qzYdF5wK2pH_KGCUaBEHdz3pdnYI`
 
-可以看到这个 URL 中的 redirect_url 指的是 gateway 地址，因为在 keycloak 授权完成之后，keycloak 会生成 // TODO，然后 gateway 会再次请求 OAuth Server（也就是 KeyCloak）获取 Access Token
+可以看到这个 URL 中的 redirect_url 指的是 gateway 地址，因为在 keycloak 授权完成之后，keycloak 重定向到 Gateway，URL长这样👇:
 
-> 当然，如果 Imp 的话，就不需要这么麻烦，直接用前端作为 OAuth 客户端即可，也不需要 Server 端处理 OAuth 流程了
+`http://192.168.50.251:6180/auth/realms/humpback_dev/protocol/openid-connect/auth?response_type=code&client_id=humpback-gateway&scope=openid%20address%20email%20microprofile-jwt%20offline_access%20phone%20profile%20roles%20user%20web-origins&state=54Hy3lHVo1l2AMGPUWRDvBQIoLru328qr3p-5ynpp20%3D&redirect_uri=http://localhost:8080/login/oauth2/code/keycloak&nonce=frqYBfSEjaScFuYLI3KF6TE1vNVwjht0minWWSbDzZ0`
+
+然后 gateway 会再次请求 OAuth Server（也就是 KeyCloak）获取 Access Token
+
+> 当然，如果 `Implicit Grant` 的话，就不需要这么麻烦，直接用前端作为 OAuth 客户端即可，也不需要 Server 端处理 OAuth 流程了
 
 这个时候，作为登录这个用例来看，已经是登录成功了，那么 Gateway 就需要重定向回我们的前端页面了，不过这个时候 Gateway 并不知道之前来的 `http://localhost:3000/orange_list`
 
@@ -338,8 +347,7 @@ class OrangeController() {
 </dependency>
 ```
 
-然后在 application.yaml 中进行配置
-
+然后在 application.yaml 中进行配置 Jwt Resource Server
 
 ``` yaml
 spring:
@@ -388,11 +396,17 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
 可以看到我们已经获取到了两个 Orange JSON 对象
 
 # 前端
-// sessionStorage
+前端的集成方案就比较简单，如果是服务端模版生成的前端，还是单页面 Javascript 应用程序，只要没有登录，就直接重定向到 gateway 的地址，然后 gateway 处理完 KeyCloak 的登录流程后，就会自动跳转回前端页面。
+
+如前文所说，这种方案的 Url 重定向需要由前端来处理，假如你在 `http://localhost:3000/welcome` 页面，如果登录完之后，最好还是跳转回 `/welcome`，但是 Gateway 重定向到 `http://localhost:3000`
+
+而判断用户是否已经登录，已经重定向到 Gateway 进行登录这一个动作也是前端页面完成的，那么可以在前端重定向之前，把当前的 Url 记录到 `SessionStorage` 中，然后从 Gateway 登录回来之后再读取 `SessionStorage` 中的内容，进行重定向。
 
 
-# 结论
-总的来说，现在 Spring 的 WebFlux 技术栈虽然说已经发展挺久的，但是相对来说资料还是比较少，而且看上起问题还不少，特别是 WebFlux + Spring Security OAuth，所以没有特殊要求还是选择 Zuul 作为 Gateway 比较省心。
+# 一些总结
+最后，总的来说，现在 Spring 的 WebFlux 技术栈虽然说已经发展挺久的，但是相对来说资料还是比较少，而且看上起问题还不少，特别是 WebFlux + Spring Security OAuth，所以没有特殊要求还是选择 Zuul 作为 Gateway 比较省心。
+
+第二，如果后端对登录这一块没有更强的安全要求，或者对登录态有控制要求的话，前端可以直接使用 `Implicit Grant`来获取 Access Token，Gateway 就只需要做转发即可。
 
 
 
@@ -401,3 +415,4 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
 - [An OAuth 2.0 introduction for beginners](https://itnext.io/an-oauth-2-0-introduction-for-beginners-6e386b19f7a9)
 - [Spring Security 5 – OAuth2 Login](https://www.baeldung.com/spring-security-5-oauth2-login)
 - [Spring Cloud Gateway with OpenID Connect and Token Relay](https://blog.jdriven.com/2019/11/spring-cloud-gateway-with-openid-connect-and-token-relay/)
+- 《OAuth 2实战》
