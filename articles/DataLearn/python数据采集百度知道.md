@@ -1,4 +1,4 @@
-title: ' python数据采集百度知道'
+title: python数据采集百度知道
 date: 2014-12-03 17:17:17
 tags:
 - python
