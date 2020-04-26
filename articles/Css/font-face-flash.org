@@ -1,4 +1,5 @@
 #+TITLE: font-face 闪烁优化实践
+#+DATE: 2016-08-04 16:26:54
 #+AUTHOR: 陳放為
 
 以前大家都知道 /FOUC/ 无样式闪烁，但是 /FOUT/ 就没有 /FOUC/ 那么出名了。
