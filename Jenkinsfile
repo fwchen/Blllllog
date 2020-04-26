@@ -35,7 +35,7 @@ pipeline {
                 }
             }
             steps {
-                sh './node_modules/.bin/starfish render . --output="blog-dist"'
+                sh './node_modules/.bin/starfish render . --output="blog-static"'
             }
         }
         stage('Build ssr') {

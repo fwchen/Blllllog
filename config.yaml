@@ -5,7 +5,7 @@ AUTHOR:
 BLOG:
   ARTICLES_DIR: 'articles'
   HTTPS: true
-  DOMAIN: 'blog.chenfangwei.xyz'
+  DOMAIN: 'www.chencanhao.com'
   NAME: '陈放为的博客'
   DESC: 'And the Chamber of Secrets'
   PORT: 8079
@@ -19,7 +19,9 @@ BLOG:
   
 STYLE:
   THEMEDIR: 'node_modules/@starfishx'
+  # THEMEDIR: '/Users/chenfangwei/workspace/'
   THEME: 'theme-hg'
+  # THEME: 'starfish-theme-hg'
   THEME_CONFIG_FILE: 'theme.config.yaml'
 
 SERVE:
