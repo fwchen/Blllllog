@@ -6,9 +6,9 @@ date: 2020-04-22
 这篇文章介绍一下，如何搭建一个基于 Spring Gateway 和 KeyCloak 的 OAuth2 资源保护系统，这里只介绍思路和核心代码，供有一定基础的读者分享思路
 
 首先我们需要了解这个小系统需要的组件，分别是
-- OAuth2 Server，这个我们选用的是 KeyCloak
-- Api Gateway & OAuth2 Client，使用 Spring Gateway 作为 OAuth2 的客户端
-- Resource Server (RS)，就是在 Api Gateway 后面隐藏的资源服务
+- **OAuth2 Server，这个我们选用的是 KeyCloak**
+- **Api Gateway & OAuth2 Client，使用 Spring Gateway 作为 OAuth2 的客户端**
+- **Resource Server (RS)，就是在 Api Gateway 后面隐藏的资源服务**
 
 整体的架构可以看下图
 
