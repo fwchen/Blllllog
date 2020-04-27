@@ -18,10 +18,8 @@ BLOG:
   IGNORE_CATEGORY_RENDER: true
 
 STYLE:
-  THEMEDIR: 'node_modules/@starfishx'
-  # THEMEDIR: '/Users/chenfangwei/workspace/'
-  THEME: 'theme-hg'
-  # THEME: 'starfish-theme-hg'
+  THEMEDIR: '_theme'
+  THEME: 'starfish-theme-hg'
   THEME_CONFIG_FILE: 'theme.config.yaml'
 
 SERVE:

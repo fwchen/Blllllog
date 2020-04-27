@@ -8,6 +8,14 @@ pipeline {
         HOME = '.'
     }
     stages {
+        stage('Submodule') {
+            node {
+                label 'master'
+            }
+            steps {
+                sh 'git submodule update --init --recursive'
+            }
+        }
         stage('Npm install') {
             agent {
                 docker {
