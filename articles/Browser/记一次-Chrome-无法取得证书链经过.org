@@ -18,7 +18,7 @@
 [[image-url:./记一次-Chrome-无法取得证书链经过/b3fad00791e5ed510e11d1310e00c455]]
 
 * 怎么解决的？
-过了一会自己好的，实属惭愧，聊记一笔
+过了一会自己好的，聊记一笔
 
 
 * 可疑的点
@@ -32,12 +32,10 @@
 9.18 / 2018 更新 补全了证书链，在 chromebook 上还是不起作用
 
 更新
-最后发现nginx上用的 cert.pem 证书，其实要用的是 fullchain.pem 妈的，真的被自己蠢哭
+最后发现nginx上用的 cert.pem 证书，其实要用的是 fullchain.pem
 
 #+BEGIN_QUOTE
 参考
-
-
 https://certificatechain.io/
 
 http://www.tangzongchao.com/2016/02/24/HTTPS%E4%B8%AD%E8%AF%81%E4%B9%A6%E9%93%BE%E4%B8%8D%E5%AE%8C%E6%95%B4%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/
