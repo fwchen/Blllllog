@@ -5,7 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "@starfishx/cli": "1.0.3",
-    "@starfishx/theme-hg": "0.0.15"
+    "@starfishx/theme-hg": "0.0.17"
   },
   "devDependencies": {},
   "scripts": {
