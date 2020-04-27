@@ -28,16 +28,16 @@ pipeline {
                 sh 'npm install'
             }
         }
-        stage('Theme install') {
-            agent {
-                docker {
-                    image 'node:12.14.0-stretch'
-                }
-            }
-            steps {
-                sh 'cd node_modules/@starfishx/theme-hg && npm install'
-            }
-        }
+        // stage('Theme install') {
+        //     agent {
+        //         docker {
+        //             image 'node:12.14.0-stretch'
+        //         }
+        //     }
+        //     steps {
+        //         sh 'cd _theme/@starfishx/theme-hg && npm install'
+        //     }
+        // }
         stage('Build') {
             agent {
                 docker {
