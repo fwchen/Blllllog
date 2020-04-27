@@ -9,8 +9,10 @@ pipeline {
     }
     stages {
         stage('Submodule') {
-            node {
-                label 'master'
+            agent {
+                node {
+                    label 'master'
+                }
             }
             steps {
                 sh 'git submodule update --init --recursive'
