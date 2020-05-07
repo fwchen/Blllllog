@@ -1,4 +1,4 @@
-title: 如何使用Spring Gateway和KeyCloak构建一个OAuth2系统
+title: 如何使用Spring Gateway和KeyCloak构建一个OIDC系统
 date: 2020-04-22
  13:31:26
 ---
