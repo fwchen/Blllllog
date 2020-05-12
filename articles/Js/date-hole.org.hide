@@ -12,6 +12,7 @@ JSON.stringif({date: new Date()})
 #+end_src
 
 则会自动调用 toISOString 这个方法，而不是 toString 这个方法
+// 不是的，是因为后面的 Z 就代表着 UTC 时间s
 
 返回的时间则是国际 ISO 标准时间，比北京时间晚了8个小时
 
