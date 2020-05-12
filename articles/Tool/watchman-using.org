@@ -1,4 +1,5 @@
 #+TITLE: Watchman-compile 使用
+#+DATE: 2017-08-04 16:26:54
 #+AUTHOR: 陳放為
 
 当使用编译器的时候，修改完代码通常需要用编译器编译，再运行，用 facebook 的 watchman 可以完成自动检测编译的功能：

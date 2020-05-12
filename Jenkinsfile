@@ -8,6 +8,16 @@ pipeline {
         HOME = '.'
     }
     stages {
+        stage('Submodule') {
+            agent {
+                node {
+                    label 'master'
+                }
+            }
+            steps {
+                sh 'git submodule update --init --recursive'
+            }
+        }
         stage('Npm install') {
             agent {
                 docker {
@@ -18,16 +28,16 @@ pipeline {
                 sh 'npm install'
             }
         }
-        stage('Theme install') {
-            agent {
-                docker {
-                    image 'node:12.14.0-stretch'
-                }
-            }
-            steps {
-                sh 'cd node_modules/@starfishx/theme-hg && npm install'
-            }
-        }
+        // stage('Theme install') {
+        //     agent {
+        //         docker {
+        //             image 'node:12.14.0-stretch'
+        //         }
+        //     }
+        //     steps {
+        //         sh 'cd _theme/@starfishx/theme-hg && npm install'
+        //     }
+        // }
         stage('Build') {
             agent {
                 docker {
@@ -35,7 +45,7 @@ pipeline {
                 }
             }
             steps {
-                sh './node_modules/.bin/starfish render . --output="blog-dist"'
+                sh './node_modules/.bin/starfish render . --output="blog-static"'
             }
         }
         stage('Build ssr') {

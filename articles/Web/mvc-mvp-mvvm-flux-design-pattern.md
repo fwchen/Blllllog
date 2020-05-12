@@ -1,4 +1,4 @@
-title: Http缓存介绍
+title: 谈谈 Web 前端 MVC, MVP， MVVM 和 FLUX 设计模式
 date: 2020-02-23 17:26:54
 ---
 

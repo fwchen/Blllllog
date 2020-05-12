@@ -1,4 +1,5 @@
 title: Terminal Awesome tool
+date: 2015-08-04 16:26:54
 tags:
 - chrome
 ---
