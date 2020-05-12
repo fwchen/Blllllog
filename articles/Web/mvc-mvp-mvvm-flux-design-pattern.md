@@ -24,9 +24,9 @@ MVC 可以说是一个很老的技术了，最早在 1978 被提出来，�
 
 而 `Controller` 控制器就相当于一个分发的工具，熟悉 spring 的同学肯定就知道这就是 spring 中的 `@Controller`，一个请求进来，需要什么样的 Model，获取什么样的数据，返回什么样的页面，都是 Controller 的工作。
 
-而 View
+View 则负责 UI 渲染工作，传统的 MVC 中，一个 View 就是一个 Web 页面，通常还有有 Javascript 代码在其中负责一些页面逻辑。
 
-Model 模型表示着业务逻辑和书籍，模型把这些数据逻辑渲染到 View 中，比较常见的做法是后端的模版技术，例如 jsp 之类的，把预期的数据填入 jsp 模版中，返回给浏览器。当然，像现在的 restful 应用中，前端都为 SPA 单页面应用，那么 api 返回的 json 数据也相当于为 View。
+Model 模型表示着业务逻辑和数据，模型把这些数据逻辑渲染到 View 中，比较常见的做法是后端的模版技术，例如 jsp 之类的，把预期的数据填入 jsp 模版中，返回给浏览器。当然，像现在的 restful 应用中，前端都为 SPA 单页面应用，那么 api 返回的 json 数据也相当于为 View。
 
 一般来说，MVC 中的数据流动是单向的，Model 用数据来渲染 View，View 用户界面交互完成后更新数据，然后 Controller 做分发和控制。但是从交互的角度来看并不是单向的，如上图中的红线，当收到更新数据请求的时候，Controller 会更新数据，更新完就会重定向到的 View ，View 拿到更新完的 Model 数据，进行渲染。
 
@@ -59,25 +59,31 @@ MVP 更适合像安卓应用这种客户端，因为这种软件需要在客户�
 
 # MVVM
 
-MVVM模式 (Presentation Model）设计模式的变体。MVVM以相同的方式抽象出视图的状态和行为。MVVM 是 Model-View-View Model 的缩写，相比 MVP，MVVM 简化了 Presentation 这个模型，只用了 Model-View 来衔接 Model 和 View 之间的通信。
+MVVM 模式 (Presentation Model）设计模式的变体。MVVM以相同的方式抽象出视图的状态和行为。MVVM 是 Model-View-View Model 的缩写，相比 MVP，MVVM 简化了 Presentation 这个模型，只用了 Model-View 来衔接 Model 和 View 之间的通信。
+
+MVVM 模式的亮点是 Mode 和 View Model 实现了**双向绑定**，这一点也确实可以说是划时代，解决了当时很多状态同步的问题，如下图，在这种模式下，可以专注开发 View 和 Model 的内容，省去了同步 UI 和 Javascript 数据的繁琐。
 
 ![mvp](./mvc-mvp-mvvm-flux-design-pattern/mvvm.png)
 
+在 Angular1 和 Vue1 的时候，这两个前端框架都声称自己是 MVVM 的框架，但是到现在 Angular9, Vue2, Vue3，这两个框架的官方也没有提及 MVVM 了，只是说借鉴了 MVVM 的思想。在我看来，在 SPA 最初发展的阶段，MVVM 确实很吸引人，但是随着前端技术的发展，Angular 和 Vue 这两个框架设计的目标也不仅是 MVVM 这种设计模式，而是朝着组件化，构建，渲染等一些前沿技术而去的。**还有一点就是，这两个框架帮助开发者实现了 MVVM 中双向绑定（Model 和 View Model），但是这仅仅是 M 和 VM，对 Model 这一层没有指导性的约束，这也不像对开发者进行约束，也就注定了这两个前端框架不属于 MVVM。**
 
 # FLUX
 
 随着 React 的强势兴起，Facebook 提出的新架构 Flux 逐渐映入人们的眼前，当然，Flux 真正流行在社区里流行起来的时候是 Redux 出现的时候。Redux 出现的时候，大家都非常惊讶的发现，呀，原来前端设计模式还能这样搞。大家纷纷开始研究起 Flux 来，Flux 确实颠覆了前端多年以来的写法，而且在那个时候，React 作为一个纯 UI 框架，一直缺乏整体架构的支撑，加上 Redux 确实能解决前端一些状态管理的难题，Redux 就这样作为一个状态管理解决方案被广泛采用。
 
+Flux 的介绍可以直接到 Flux 的网站上去了解 [What is Flux?](http://fluxxor.com/what-is-flux.html#inversion-of-control)
+
 ![mvp](./mvc-mvp-mvvm-flux-design-pattern/flux-simple-f8-diagram-with-client-action-1300w.png)
 
+简单的来讲，Flux 借鉴了很多设计模型的思想，它是为了解决数据同步的具体问题而生的，它着重于为应用程序的数据创建显式且可理解的更新路径，这使开发过程中的跟踪更改更简单，并使错误更易于跟踪和修复。
+
+以现在前端社区的情况来看，Flux 无疑是现在最流行的前端设计模式，因为随着前端的发展，可以前端应用面临着越来越复杂的挑战，其中最主要的问题还是状态同步的问题，而 Flux 是 Facebook 在富前端应用开发中不断探索应运而生的，单向数据流的设计确实能解决很多状态同步的问题。相比之下 MVC， MVP 等设计方法就显得乏力了，现在 React，Angular，Vue 社区中主流的状态管理方案也是清一色的类 Flux 设计，所以说 Flux 确实是现在的主流。
 
 # 设计模式的趋势
 
-MVC, MVP, MVVM，FLUX 这四种模式是按顺序出现的，其实也代表着一些趋势的变化，一开始 MVC 中的 Model 和 View 和 Controller 是十分临近的，整个模式是偏服务端的，到 MVP，MVVM，这两个设计模式属于纯前端了，Model 的重要性也开始有一点降低，更多重点开始转移到 View 中。到 Flux，已经彻底转移了 Model 的概念，前端中不在包含领域模型的逻辑和概念，前端只有数据模型和 UI 模型，数据都放在 Reducer 中处理，这里面的数据基本上都是展示数据，不涉及领域模型，而 View 和 Component 关注的事也只是 UI 和交互而已，可以说，到 Flux，前端已经开始独立化了，职责也更分明，也跟现在社区“大前端”所契合。
+MVC, MVP, MVVM，FLUX 这四种模式是按顺序出现的，其实也代表着一些趋势的变化，一开始 MVC 中的 Model 和 View 和 Controller 是十分临近的，整个模式是偏服务端的，到 MVP，MVVM，这两个设计模式属于纯前端了，Model 的重要性也开始有一点降低，更多重点开始转移到 View 中。到 Flux，已经彻底转移了 Model 的概念，前端中不再包含领域模型的逻辑和概念，前端只有数据模型和 UI 模型，数据都放在 `Reducer` 中处理，这里面的数据基本上都是展示数据，也不涉及领域模型，而 View 和 Component 关注的事也只是 UI 和交互而已，可以说，到 Flux 这种设计模式，前端已经开始独立化了，职责也更分明，也跟现在社区“大前端”所契合。
 
 # 参考
 [stackoverflow what-are-mvp-and-mvc-and-what-is-the-difference](https://stackoverflow.com/questions/2056/what-are-mvp-and-mvc-and-what-is-the-difference)
-
 [MVC，MVP 和 MVVM 的图示-阮一峰](http://www.ruanyifeng.com/blog/2015/02/mvcmvp_mvvm.html)
-
 [Github Facebook/flux](https://github.com/facebook/flux/tree/master/examples)
