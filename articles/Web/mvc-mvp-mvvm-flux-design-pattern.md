@@ -8,7 +8,7 @@ MVC，MVP，MVVM 一直都是 GUI 领域常见的设计模式，这三个模式�
 
 # 什么是 Model（模型）
 Model 是好几个概念中非常重要的一个概念，在介绍四种设计模式之前，什么是 Model 模型，这里要先介绍一下。
-    
+
 模型 Model 可以理解成很多东西，甚至这个概念在软件开发这门学科中，也表示着非常宽泛的意思，在不同的上下文中，表示的东西可能千差万别。不过幸好，这上面所说的四种设计模式之中，Model 表示的是同一个东西，那就是指代表真实状态内容的领域模型（面向对象），或指代表内容的数据访问层（以数据为中心）。
 
 # MVC
@@ -78,6 +78,6 @@ Flux 的介绍可以直接到 Flux 的网站上去了解 [What is Flux?](http://
 总的来看，MVC, MVP, MVVM，FLUX 这四种模式是按顺序出现的，其实也代表着一些趋势的变化，一开始 MVC 中的 Model 和 View 和 Controller 是十分临近的，整个模式是偏服务端的，到 MVP，MVVM，这两个设计模式属于纯前端了，Model 的重要性也开始有一点降低，更多重点开始转移到 View 中。到 Flux，已经彻底转移了 Model 的概念，前端中不再包含领域模型的逻辑和概念，前端只有数据模型和 UI 模型，数据都放在 `Reducer` 中处理，这里面的数据基本上都是展示数据，也不涉及领域模型，而 View 和 Component 关注的事也只是 UI 和交互而已，可以说，到 Flux 这种设计模式，前端已经开始独立化了，职责也更分明，也跟现在社区“大前端”所契合。
 
 # 参考
-[stackoverflow what-are-mvp-and-mvc-and-what-is-the-difference](https://stackoverflow.com/questions/2056/what-are-mvp-and-mvc-and-what-is-the-difference)
-[MVC，MVP 和 MVVM 的图示-阮一峰](http://www.ruanyifeng.com/blog/2015/02/mvcmvp_mvvm.html)
-[Github Facebook/flux](https://github.com/facebook/flux/tree/master/examples)
+- [stackoverflow what-are-mvp-and-mvc-and-what-is-the-difference](https://stackoverflow.com/questions/2056/what-are-mvp-and-mvc-and-what-is-the-difference)
+- [MVC，MVP 和 MVVM 的图示-阮一峰](http://www.ruanyifeng.com/blog/2015/02/mvcmvp_mvvm.html)
+- [Github Facebook/flux](https://github.com/facebook/flux/tree/master/examples)
