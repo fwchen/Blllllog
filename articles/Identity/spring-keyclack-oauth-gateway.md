@@ -3,7 +3,7 @@ date: 2020-04-22
  13:31:26
 ---
 
-这篇文章介绍一下，如何搭建一个基于 Spring Gateway 和 KeyCloak 的 OAuth2 资源保护系统，这里只介绍思路和核心代码，供有一定基础的读者分享思路
+这篇文章介绍一下，如何搭建一个基于 Spring Gateway 和 KeyCloak 的 OAuth2 资源保护系统，并使用 OIDC 作登录认证，这里只介绍思路和核心代码，供有一定基础的读者分享思路
 
 首先我们需要了解这个小系统需要的组件，分别是
 - **OAuth2 Server，这个我们选用的是 KeyCloak**
@@ -15,10 +15,11 @@ date: 2020-04-22
 ![](./spring-keyclack-oauth-gateway/demo.png)
 > 图片出自 https://spring.io/blog/2019/08/16/securing-services-with-spring-cloud-gateway
 
-认证流程是，客户端（浏览器）访问应用，此时没有认证状态，然后重定向到单点登录平台，也就是 KeyCloak，然后在 KeyCloak 上进行用户名密码认证(OIDC)，成功后，KeyCloak 返回认证后的信息，然后客户端（Gateway）通过这些信息，再生成一个 Token，传到被保护的 Resource Resource Server 拿到这个 Token 再向 KeyCloak 进行权限的认证，如果认证都通过，则允许对资源进行操作。
+资源认证流程是，客户端（浏览器）访问应用，此时没有认证状态，然后重定向到单点登录平台，也就是 KeyCloak，然后在 KeyCloak 上进行用户名密码认证(OIDC)，成功后，KeyCloak 返回认证后的信息，然后客户端（Gateway）通过这些信息，再生成一个 Token，传到被保护的 Resource Resource Server 拿到这个 Token 再向 KeyCloak 进行权限的认证，如果认证都通过，则允许对资源进行操作。
 
 ## OIDC
-我们会使用 `OIDC` 作为用户登录认证
+
+我们会使用 `OIDC` 作为用户登录认证方案
 
 ### 什么是 OIDC
 
@@ -72,14 +73,14 @@ docker run -p 6180:8080 -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=123456 -d jb
 
 `http://192.168.50.251:6180/auth/realms/orange/.well-known/openid-configuration`
 
-> 需要将我们的 ip 和 realm 名字替换成实际的
+> 实际操作中，需要将的 ip 和 realm 名字替换掉
 
 ![](./spring-keyclack-oauth-gateway/realm_openid_configuration.png)
 
 
 # 与 Gateway 集成
 
-## 授权类型
+### 授权类型
 然后我们需要在 Gateway 上集成 OAuth2，我们选择的授权类型是 `Authorization Code Grant`，虽然我们这个 Demo 的前端也是一个 SPA，可以直接用前端作为一个 OAuth2 客户端，然后选择 `Implicit Grant` 作为授权类型，但是我们还是选择了 `Authorization Code Grant`，这种授权类型的流程见下图
 
 ![](./spring-keyclack-oauth-gateway/code_flow.png)
@@ -93,7 +94,8 @@ docker run -p 6180:8080 -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=123456 -d jb
 >贾斯廷·里彻,安东尼奥·桑索. OAuth 2实战 (Chinese Edition) (Kindle 位置 1940-1945). Kindle 版本. 
 
 
-## Maven 依赖
+### Maven 依赖
+确定 Gateway 的依赖包，可以通过 https://start.spring.io 来生成
 ``` xml
 <dependency>
     <groupId>org.springframework.cloud</groupId>
@@ -110,7 +112,7 @@ docker run -p 6180:8080 -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=123456 -d jb
 ```
 
 ## Application.yaml DSL 配置
-然后现在 application.yaml 中配置 OAuth2，只需要在 Provider 下面的 KeyCloak 中配置 `issuer-uri` 即可，这个地址可以在 keycloak 的 Admin 中找到
+然后现在 application.yaml 中配置 OAuth2，只需要在 Provider 下面的 KeyCloak 中配置 `issuer-uri` 即可，这个地址可以在 keycloak 的 Admin 控制台中找到
 
 ``` yaml
 spring:
@@ -266,7 +268,7 @@ public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http,
 
 > 当然在生产环境还是要老老实实配置好 csrf，xss 这些参数。
 
-## 处理重定向问题
+### 处理重定向问题
 最后我们还有一个问题需要考虑
 
 因为 orange 这个应用的 OAuth2 客户端是在 Gateway，前端也有多种方法可以构造授权 Url 到 KeyCloak 进行登陆授权，但是我们选择一种比较简单的方法，那就是在页面中直接重定向到我们的 Gateway
@@ -388,9 +390,9 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
 > 上面的代码中，还有一个问题还没有解决，就是 `hasRole` 这个方法一直不生效，也上网查阅过很多资料，包括在 keyCloak 中对 Role 进行 Mapping，但是还是不生效，在 Spring Security 的源码中看了一下，好像在 Web Reactive 的代码中没有找到 hasRole 的相关代码，也就暂时放下了，读者在参考这篇文章实现的时候要多注意一下。
 
 
-最后我们在 Postman 中进行最后的测试，Get `http://localhost:8080/oranges` 来获取两个 Orange 资源
+最后我们在 Postman 中进行最后的测试，Get 请求 `http://localhost:8080/oranges` 来获取两个 Orange 资源
 
-我们需要在 Postman 的 Authorization 选项卡中获取 OAuth2 的 Access Token，Spring Security 会自动 Decode 去再向 KeyCloak 获取一遍 Access Token，然后创建 Session
+在 Postman 的 Authorization 选项卡中获取 OAuth2 的 Access Token，Spring Security 会自动 Decode 去再向 KeyCloak 获取一遍 Access Token，然后创建 Session
 
 > 当然 Postman 的步骤比较麻烦，也可以直接通过浏览器打开 http://localhost:8080， 浏览器会重定向到 KeyCloak 进行认证，不过认证成功后会跳转到前端 http://localhost:3000，这时候再访问 http://localhost:8080/oranges 即可
 
@@ -398,18 +400,17 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
 
 可以看到我们已经获取到了两个 Orange JSON 对象
 # 前端
-前端的集成方案就比较简单，如果是服务端模版生成的前端，还是单页面 Javascript 应用程序，只要没有登录，就直接重定向到 gateway 的地址，然后 gateway 处理完 KeyCloak 的登录流程后，就会自动跳转回前端页面。
+前端的集成方案就比较简单，不论是服务端模版生成的前端，还是单页面 SPA 应用程序，只要没有登录，就直接重定向到 Gateway 的地址 `http://localhost:8080/oauth2/authorization/keycloak`，然后 Gateway 处理完 KeyCloak 的登录流程后，就会自动跳转回前端页面。
 
 如前文所说，这种方案的 Url 重定向需要由前端来处理，假如你在 `http://localhost:3000/welcome` 页面，如果登录完之后，最好还是跳转回 `/welcome`，但是 Gateway 重定向到 `http://localhost:3000`
 
 而判断用户是否已经登录，已经重定向到 Gateway 进行登录这一个动作也是前端页面完成的，那么可以在前端重定向之前，把当前的 Url 记录到 `SessionStorage` 中，然后从 Gateway 登录回来之后再读取 `SessionStorage` 中的内容，进行重定向。
 
-
 # 一些总结
-最后，总的来说，现在 Spring 的 WebFlux 技术栈虽然说已经发展挺久的，但是相对来说资料还是比较少，而且看上起问题还不少，特别是 WebFlux + Spring Security OAuth，所以没有特殊要求还是选择 Zuul 作为 Gateway 比较省心。
 
-第二，如果后端对登录这一块没有更强的安全要求，或者对登录态有控制要求的话，前端可以直接使用 `Implicit Grant`来获取 Access Token，Gateway 就只需要做转发即可。
+最后，总的来说，现在 Spring 的 WebFlux 技术栈虽然说已经发展挺久的，但是相对来说资料还是比较少，而且看上起问题还不少，特别是 WebFlux + Spring Security OAuth 这种技术栈，所以没有特殊要求还是选择 Zuul 作为 Gateway 比较省心。
 
+其次，如果后端对登录这一块没有更强的安全要求，或者对登录态有控制要求的话，前端可以直接使用 `Implicit Grant` 这种授权模式来获取 Access Token，Gateway 就只需要做转发即可，也能省下不少工作量。
 
 
 # 参考资料
