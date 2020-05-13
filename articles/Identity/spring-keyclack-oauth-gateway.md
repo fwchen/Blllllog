@@ -66,6 +66,9 @@ docker run -p 6180:8080 -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=123456 -d jb
 
 ![](./spring-keyclack-oauth-gateway/create-client-gateway.png)
 
+这里注意需要设置 Client 的 Access Type 为 `confident`，这样第二个 Tab 页 Credentials 才能出来，我们需要在那里获取密钥
+![](./spring-keyclack-oauth-gateway//WX20200513-181156@2x.png)
+
 接着创建一个用户
 ![](./spring-keyclack-oauth-gateway/create_user.png)
 
