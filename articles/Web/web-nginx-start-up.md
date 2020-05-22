@@ -1,14 +1,14 @@
-title: 前端NGINX使用攻略
+title: Ngninx 使用攻略
 date: 2020-02-22 12:16:07
 ---
 
-#前端NGINX使用攻略
+# 前端NGINX使用攻略
 
 Nginx 是由俄罗斯人 Igor Sysoev 设计开发的一款免费开源的高性能 HTTP 代理服务器及反向代理服务器（Reverse Proxy）产品。发音发作 "engine x"。现在 NGINX 也有商业版本 NGINX PLUS，有高级负载均衡，JWT 解析等功能，其他基本和开源版本一致，这篇文章也是基于 NGINX 开源版本来构建例子。
 
 现在的 web 应用，有很大一部分单页面应用是通过 Nginx 来部署的，这种部署让应用的前后端分离，更为灵活。
 
-##NGINX部署静态页面
+## NGINX部署静态页面
 
 
 NGINX 的使用场景十分广泛，我们先用来部署一个简单的应用进行示范，我们用 [react-router-example](https://github.com/alanbsmith/react-router-example) 生成的 demo 作为本文的示范站点，这是一个有路由的单页面网站。
@@ -94,77 +94,7 @@ server {
 try_files 这个指令会让 nginx 按顺序查找文件，$uri 这个 URI 找不到的时候，就会返回 /index.html， 而 /index.html 是我们打包后的 应用 HTML 文件。
 
 
-## 基本配置概念
-看完了上面的简单例子，下面介绍一下 Nginx 的配置，Nginx 只需要知道两个配置概念就基本够用了，一个是指令（directive），一个是上下文（context）。
-
-### 指令
-Nginx 的配置指令包含名称和参数，例如最简单的
-
-``` nginx
-listen 80
-```
-
-一个配置文件绝大部分都是指令，上面这个指令是令一个服务上下文监听 80 端口来输出服务。
-
-NGINX 的指令按照形式来区分，可以分为以下几种：
-
-#### **普通指令**
-
-在每个上下文仅有唯一值。而且，它只能在当前上下文中定义一次。子级上下文可以覆盖父级中的值，并且这个覆盖值只在当前的子级上下文中有效。
-```nginx
-gzip on;
-gzip off; # 非法，不能在同一个上下文中指定同一普通指令2次
-```
-
-#### **数组指令**
-在同一上下文中添加多条指令，将添加多个值，而不是完全覆盖。在子级上下文中定义指令将覆盖给父级上下文中的值。
-```nginx
-error_log /var/log/nginx/error.log;
-error_log /var/log/nginx/error_notive.log notice;
-error_log /var/log/nginx/error_debug.log debug;
-```
-数组指令
-行动是改变事情的指令。根据模块的需要，它继承的行为可能会有所不同。
-
-例如 rewrite 指令，只要是匹配的都会执行：
-#### **行动指令**
-```nginx
-server {
-  rewrite ^ /foobar;
-
-  location /foobar {
-    rewrite ^ /foo;
-    rewrite ^ /bar;
-  }
-}
-```
-如果用户想尝试获取 /sample：
-
-- server的rewrite将会执行，从 /sample rewrite 到 /foobar
-- location /foobar 会被匹配
-- location的第一个rewrite执行，从/foobar rewrite到/foo
-- location的第二个rewrite执行，从/foo rewrite到/bar
-
-> 指令不用记，一般写 nginx 配置文件都是从一份模版中修修改改得来的，所有的指令都可以在官方文档中找到，[http://nginx.org/en/docs/dirindex.html]()
-
-
-
-### 上下文
-上下文，你可以声明指令 - 类似于编程语言中的作用域
-``` nginx
-worker_processes 2; # 全局上下文指令
-
-http {              # http 上下文
-    gzip on;        # http 上下文中的指令
-
-  server {          # server 上下文
-    listen 80;      # server 上下文中的指令
-  }
-}
-```
-
-
-## 反向代理 api
+## 反向代理
 
 
 反向代理是 Nginx 比较著名的应用场景，不过在这里不过多介绍，这里介绍一种页面部署场景。
@@ -202,7 +132,7 @@ server {
 <br/>
 这里需要注意的是 `/api` 如果写成 `/api/`，还有 `http://t.weather.sojson.com/api/` 后面的斜杠不写，是不会正确工作的，因为这些不同的 URI 会令 Nginx 进行不同的处理，情况比较复杂不在这里赘述。
 
-## Docker 打包前端应用
+## 如何用 Docker 打包 Nginx 应用
 Docker部署目前已经很流行了，Nginx 的 Docker 部署其实不难，这里顺便讲一下，就是把我们的配置文件和打包出来的资源拷贝进去制作一个 Docker 镜像即可。
 
 下面是 Dockerfile
@@ -248,7 +178,6 @@ server {
 上面讲完了 Nginx 的基础配置，其实可以看到 Nginx 的配置其实非常简单，也就两三行就能搞定，不过一般我们在生产环境上要考虑的事情非常多，缓存是一个比较头疼的话题，这里来讲讲 Nginx 的缓存设置。
 
 > 如果你对 web 缓存不太了解，那么可以先看看我的另一篇文章
-
 
 
 ## 性能调优及其他

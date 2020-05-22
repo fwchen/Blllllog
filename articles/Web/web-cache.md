@@ -1,4 +1,4 @@
-title: Web 缓存介绍
+title: 前端缓存杂谈
 date: 2020-02-18 17:26:54
 ---
 
@@ -108,7 +108,7 @@ F5
 ## 经验结论
 1. 尽量使用 revving 技术，把一些静态资源文件在 url 上唯一化，视作独立的资源
 
-# Service Worker 缓存
+# Service Worker 
 PWA 
 
 
