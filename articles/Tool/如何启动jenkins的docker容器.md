@@ -3,6 +3,8 @@ date: 2020-04-09 19:57:09
 
 ---
 
+ocker run -d -v jenkins_home:/var/jenkins_home -p 8012:8080 -v /var/run/docker.sock:/var/run/docker.sock --name jenkins -u 0 -e TZ="Asia/Shanghai" jenkins/jenkins:lts
+
 jenkinsfile
 ``` jenkinsfile
 pipeline {
