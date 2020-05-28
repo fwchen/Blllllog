@@ -12,7 +12,7 @@ todos check掉了一个todo，如果是采用数组的方式，那么check掉那
 
 ## 副作用
 挑一个苦力工
-redux把自己标榜得很神圣很纯洁
+redux把自己标榜得很神圣很纯洁
 middle
 
 
