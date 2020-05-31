@@ -1,6 +1,5 @@
 title: 如何使用Spring Gateway和KeyCloak构建一个OIDC系统
-date: 2020-04-22
- 13:31:26
+date: 2020-04-22 13:31:26
 ---
 
 这篇文章介绍一下，如何搭建一个基于 Spring Gateway 和 KeyCloak 的 OAuth2 资源保护系统，并使用 OIDC 作登录认证，这里只介绍思路和核心代码，供有一定基础的读者分享思路
