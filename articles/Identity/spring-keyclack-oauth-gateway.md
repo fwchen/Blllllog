@@ -332,8 +332,8 @@ import org.springframework.web.bind.annotation.*
 class OrangeController() {
     @RequestMapping(value = ["/oranges"], method = [RequestMethod.GET], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun querySpaces(@AuthenticationPrincipal() principal: Jwt): List<Orange> {
-        val orange1 = Orange("Orange1", principal.claims.get("sub") as String)
-        val orange2 = Orange("Orange2", principal.claims.get("sub") as String)
+        val orange1 = Orange("Orange1", principal.claims.get("userId") as String)
+        val orange2 = Orange("Orange2", principal.claims.get("userId") as String)
         return listOf(orange1, orange2)
     }
 }
