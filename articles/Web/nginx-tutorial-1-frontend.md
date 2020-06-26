@@ -1,17 +1,16 @@
-title: Nginx使用攻略之部署单页面应用
+title: Nginx使用攻略（一）之部署前端应用
 date: 2020-02-22 12:16:07
 ---
 
-# 前端NGINX使用攻略
+#  Nginx使用攻略（一）之部署前端应用
 
 Nginx 是由俄罗斯人 Igor Sysoev 设计开发的一款免费开源的高性能 HTTP 代理服务器及反向代理服务器（Reverse Proxy）产品。发音发作 "engine x"。现在 NGINX 也有商业版本 NGINX PLUS，有高级负载均衡，JWT 解析等功能，其他基本和开源版本一致，这篇文章也是基于 NGINX 开源版本来构建例子。
 
-现在的 web 应用，有很大一部分单页面应用是通过 Nginx 来部署的，这种部署让应用的前后端分离，更为灵活。
+现在的 web 应用，有很大一部分单页面应用是通过 Nginx 来部署的，这种部署让应用的前后端分离，更为灵活，这篇文章
 
-## NGINX部署静态页面
+## NGINX 部署静态页面
 
-
-NGINX 的使用场景十分广泛，我们先用来部署一个简单的应用进行示范，我们用 [react-router-example](https://github.com/alanbsmith/react-router-example) 生成的 demo 作为本文的示范站点，这是一个有路由的单页面网站。
+我们先用来部署一个简单的静态应用进行示范，我们用 [react-router-example](https://github.com/alanbsmith/react-router-example) 生成的 demo 作为本文的示范站点，这是一个有路由的单页面网站。
 
 假设已经构建出来了一个 dist 的文件夹，我们要将它移动到 nginx 的默认目录下：
 
