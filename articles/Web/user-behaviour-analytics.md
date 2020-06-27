@@ -67,9 +67,6 @@ date: 2020-06-26 17:26:54
 
 ![x](./event-tracking/4.png)
 
-
-## 埋点和日志
-
 # 用户行为分析模型
 ![x](./event-tracking/1.jpeg)
 
@@ -121,3 +118,5 @@ http://www.woshipm.com/user-research/3236774.html
 http://www.mysecretrainbow.com/report/12611.html
 
 https://www.jianshu.com/p/225f220b976f
+
+https://pickydigest.com/digital-marketing/google-analytics-getting-started/
