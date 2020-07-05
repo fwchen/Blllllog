@@ -17,6 +17,7 @@ date: 2020-05-17 17:26:54
 
 ## 组件正交
 
+
 ## 智能组件还是哑组件 (超大型哑组件)
 
 ## 数据属性
@@ -25,6 +26,10 @@ date: 2020-05-17 17:26:54
 
 **事实上，在大多数情况下，在组件中使用这种class对象是一种不好的做法。**
 
-// TODO svg 维护对象
-// TODO life circle 对象
-// TODO “模型的抽象”
+- // TODO svg 维护对象
+- // TODO life circle 对象
+- // TODO “模型的抽象”
+
+
+### 参考
+- [The Benefits of Orthogonal React Components](https://dmitripavlutin.com/orthogonal-react-components/)
