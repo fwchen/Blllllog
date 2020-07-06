@@ -1,9 +1,24 @@
-title: 如何启动Jenkins的docker容器
+title: 如何使用Docker来部署持久的Jenkins服务
 date: 2020-04-09 19:57:09
-
 ---
 
-ocker run -d -v jenkins_home:/var/jenkins_home -p 8012:8080 -v /var/run/docker.sock:/var/run/docker.sock --name jenkins -u 0 -e TZ="Asia/Shanghai" jenkins/jenkins:lts
+这篇文章分享一下如何用 Docker 来部署 Jenkins，还有如何在 Docker Jenkins 中使用 pipeline 配置项目
+
+
+## 启动 Docker
+首先需要启动 Docker jenkins，这一步十分简单，但是需要一些参数
+``` bash
+docker run -d -v jenkins_home:/var/jenkins_home -p 8012:8080 -v /var/run/docker.sock:/var/run/docker.sock --name jenkins -u 0 -e TZ="Asia/Shanghai" jenkins/jenkins:lts
+```
+
+- **-v jenkins_home:/var/jenkins_home** 是挂载本地空间目录，这个如果不挂载的话，重启 Docker 容器里面的数据就没了
+- **-p 8012:8080** 映射端口到本地 8012
+- **-u 0** 指定 Docker 容器以 root 用户运行（注意！：这样做十分不安全，因为我是在虚拟机上操作，所以用的 root 用户，这样也需要启动 root 用户的 docker。非 root 用户运行千万不要加这个参数）
+- **-e TZ="Asia/Shanghai"** 指定时区环境变量
+- **-v /var/run/docker.sock:/var/run/docker.sock** 挂载宿主 Docker 的 sock 文件
+
+上面的启动参数，其中最重要的是
+
 
 jenkinsfile
 ``` jenkinsfile
