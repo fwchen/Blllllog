@@ -17,7 +17,12 @@ docker run -d -v jenkins_home:/var/jenkins_home -p 8012:8080 -v /var/run/docker.
 - **-e TZ="Asia/Shanghai"** 指定时区环境变量
 - **-v /var/run/docker.sock:/var/run/docker.sock** 挂载宿主 Docker 的 sock 文件
 
-上面的启动参数，其中最重要的是
+上面的启动参数，其中最重要的是最后的一个，就是把属主机的 docker sock文件挂载到 Docker Jenkins 里面，因为这样才能让在 Pipeline 中使用 Docker 来进行构建。
+
+当然，有些极客朋友可能会说，那我直接在 Docker 中运行 Docker 也可以嘛，但是 Docker 中套 Docker 其实更难搞，而且有很多坑。
+
+甚至 Docker 的一名贡献者也专门写过文章来
+https://jpetazzo.github.io/2015/09/03/do-not-use-docker-in-docker-for-ci/
 
 
 jenkinsfile
