@@ -25,6 +25,8 @@ docker run -d -v jenkins_home:/var/jenkins_home -p 8012:8080 -v /var/run/docker.
 https://jpetazzo.github.io/2015/09/03/do-not-use-docker-in-docker-for-ci/
 
 
+## 连接宿主机 docker
+
 jenkinsfile
 ``` jenkinsfile
 pipeline {
