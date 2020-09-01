@@ -26,6 +26,9 @@ https://jpetazzo.github.io/2015/09/03/do-not-use-docker-in-docker-for-ci/
 
 
 ## 连接宿主机 docker
+既然我们不会在 Jenkins Docker 容器中启动 Docker 服务，那么就只能通过 socket 的方式连接一个启动好的 Docker 服务，
+
+![docker_configure](./run-jenkins-in-docker/WX20200901-210840@2x.png)
 
 jenkinsfile
 ``` jenkinsfile
