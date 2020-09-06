@@ -26,19 +26,30 @@ https://jpetazzo.github.io/2015/09/03/do-not-use-docker-in-docker-for-ci/
 
 
 ## 连接宿主机 docker
-既然我们不会在 Jenkins Docker 容器中启动 Docker 服务，那么就只能通过 socket 的方式连接一个启动好的 Docker 服务，
+既然我们不会在 Jenkins Docker 容器中启动 Docker 服务，那么就只能通过 socket 的方式连接一个启动好的 Docker 服务，所以我们启动 Jenkins 容器的时候，我们把 docker socket 文件挂载在容器里，`-v /var/run/docker.sock:/var/run/docker.sock`。
+
+首先我们要安装 `Docker` 插件
+![docker_configure](./run-jenkins-in-docker/WX20200901-212129@2x.png)
+
+
+然后我们到 Jenkins setting > Configure Clouds 中设置，新建一个云配置，命名为 Docker, 然后填入 `unix:///var/run/docker.sock` 即可完成，如下图。
 
 ![docker_configure](./run-jenkins-in-docker/WX20200901-210840@2x.png)
 
-jenkinsfile
+
+## 如何配置项目的 Pipeline
+虽然运行在 Docker Jenkins 中的项目配置也大同小异，但是还是有一些地方需要注意下。
+
+下面先帖一个真是的 Pipeline 例子。
+
 ``` jenkinsfile
 pipeline {
     agent none
 
     triggers {
-        pollSCM('*/1 * * * *')
+        pollSCM('*/1 * * * *')  # 每隔一分钟 pollSCM
     }
-     environment {
+     environment { # 设置一些环境变量，写入配置中的预设值，用来执行 Pipeline 时的构建用
         HOME = '.'
         JFISH_DATASOURCE_RDS_DATABASE_URL = credentials('jenkins-jfish-datasource-rds-database_url')
         GOPROXY = 'goproxy.cn'
@@ -51,7 +62,7 @@ pipeline {
     }
     stages {
         stage('Lint') {
-            agent {
+            agent { # 配置 Stage 的执行 Agent，这里是每一个 Stage 都配置了，但可以再包一层 Stage 来只写一次。
                 docker {
                     image 'golangci/golangci-lint:latest'
                 }
