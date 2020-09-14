@@ -40,65 +40,58 @@ https://jpetazzo.github.io/2015/09/03/do-not-use-docker-in-docker-for-ci/
 ## 如何配置项目的 Pipeline
 虽然运行在 Docker Jenkins 中的项目配置也大同小异，但是还是有一些地方需要注意下。
 
-下面先帖一个真是的 Pipeline 例子。
+下面先帖一个真实的 Pipeline 例子。
+
 
 ``` jenkinsfile
 pipeline {
     agent none
-
     triggers {
-        pollSCM('*/1 * * * *')  # 每隔一分钟 pollSCM
+        pollSCM('*/1 * * * *')
     }
-     environment { # 设置一些环境变量，写入配置中的预设值，用来执行 Pipeline 时的构建用
+    environment {  # 设置一些环境变量，写入配置中的预设值，用来执行 Pipeline 时的构建用
+        DOCKER_REGISTER = credentials('jenkins-blog-docker-register')
         HOME = '.'
-        JFISH_DATASOURCE_RDS_DATABASE_URL = credentials('jenkins-jfish-datasource-rds-database_url')
-        GOPROXY = 'goproxy.cn'
-        DOCKER_REGISTER = 'fwchen'
-        JFISH_STORAGE_ENDPOINT = credentials('s3_storage_endpoint')
-        JFISH_STORAGE_ACCESS_KEY_ID = credentials('s3_storage_access_key_id')
-        JFISH_STORAGE_SECRET_ACCESS_KEY_ID = credentials('s3_storage_secret_access_key_id')
-        docker_hub_username = credentials('docker_hub_username')
-        docker_hub_password = credentials('docker_hub_password')
     }
     stages {
-        stage('Lint') {
-            agent { # 配置 Stage 的执行 Agent，这里是每一个 Stage 都配置了，但可以再包一层 Stage 来只写一次。
-                docker {
-                    image 'golangci/golangci-lint:latest'
+        stage('Submodule') {
+            agent {
+                node {
+                    label 'master'
                 }
             }
             steps {
-                sh 'golangci-lint run -v'
+                sh 'git submodule update --init --recursive'
             }
         }
-        stage('Test') {
+        stage('Npm install') {
             agent {
                 docker {
-                    image 'golang:1.13.4-stretch'
+                    image 'node:12.14.0-stretch'
                 }
             }
             steps {
-                sh 'make test'
+                sh 'npm install'
             }
         }
         stage('Build') {
             agent {
                 docker {
-                    image 'golang:1.13.4-stretch'
+                    image 'node:12.14.0-stretch'
                 }
             }
             steps {
-                sh 'make build'
+                sh './node_modules/.bin/starfish render . --output="blog-static"'
             }
         }
-        stage('Build Tools') {
+        stage('Build ssr') {
             agent {
                 docker {
-                    image 'golang:1.13.4-stretch'
+                    image 'node:12.14.0-stretch'
                 }
             }
             steps {
-                sh 'make build-tool'
+                sh './node_modules/.bin/starfish angular-ssr .'
             }
         }
         stage('Dockerize') {
@@ -108,37 +101,33 @@ pipeline {
                     args '-v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
-            stages {
-                stage('Build Image') {
-                    steps {
-                        sh "cd migration && docker build . -t $DOCKER_REGISTER/jellyfish-migration:latest"
-                        sh "docker build . -f cmd/jellyfish-tool/Dockerfile -t $DOCKER_REGISTER/jellyfish-tool:latest"
-                        sh "docker build . -t $DOCKER_REGISTER/jellyfish:latest"
-                    }
+            steps {
+                sh "docker build . -t $DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER -t $DOCKER_REGISTER/fangwei-blog:latest"
+            }
+        }
+        stage('Publish image') {
+            agent {
+                docker {
+                    image 'docker:19.03.5'
+                    args '-v /var/run/docker.sock:/var/run/docker.sock'
                 }
-                stage('Registry Login') {
-                    steps {
-                        sh "echo $docker_hub_password | docker login -u $docker_hub_username --password-stdin"
-                    }
+            }
+            steps {
+                sh 'docker push $DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER'
+                sh 'docker push $DOCKER_REGISTER/fangwei-blog:latest'
+                sh 'echo "$DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER" > .artifacts'
+                archiveArtifacts(artifacts: '.artifacts')
+            }
+        }
+        stage('Remove image') {
+            agent {
+                docker {
+                    image 'docker:19.03.5'
+                    args '-v /var/run/docker.sock:/var/run/docker.sock'
                 }
-                stage('Publish image') {
-                    steps {
-                        sh 'docker push $DOCKER_REGISTER/jellyfish:latest'
-                        sh 'docker push $DOCKER_REGISTER/jellyfish-migration:latest'
-                        sh 'docker push $DOCKER_REGISTER/jellyfish-tool:latest'
-                        sh 'echo "$DOCKER_REGISTER/jellyfish:latest" > .artifacts'
-                        sh 'echo "$DOCKER_REGISTER/jellyfish-migration:latest" >> .artifacts'
-                        sh 'echo "$DOCKER_REGISTER/jellyfish-tool:latest" >> .artifacts'
-                        archiveArtifacts(artifacts: '.artifacts')
-                    }
-                }
-                stage('Remove image') {
-                    steps {
-                        sh "docker image rm $DOCKER_REGISTER/jellyfish:latest"
-                        sh "docker image rm $DOCKER_REGISTER/jellyfish-migration:latest"
-                        sh "docker image rm $DOCKER_REGISTER/jellyfish-tool:latest"
-                    }
-                }
+            }
+            steps {
+                sh "docker image rm $DOCKER_REGISTER/fangwei-blog:v0.0.$BUILD_NUMBER 2> /dev/null"
             }
         }
     }
@@ -149,3 +138,11 @@ pipeline {
     }
 }
 ```
+
+需要注意的是一点，如果需要在在 Docker Jenkins Pipeline 中运行构建的 Docker，例如构建测试，打包等，还是需要把 Docker 的套接字挂载到容器上。
+
+
+## 安全问题
+
+### Docker安全性
+这种方案的弊端是把 Docker 暴露给了 Jenkins，并且是完全暴露，在一些特定的环境，宿主机的 Docker 甚至会有安全漏洞，
