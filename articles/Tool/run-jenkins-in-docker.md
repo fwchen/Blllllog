@@ -26,7 +26,7 @@ https://jpetazzo.github.io/2015/09/03/do-not-use-docker-in-docker-for-ci/
 
 
 ## 连接宿主机 docker
-既然我们不会在 Jenkins Docker 容器中启动 Docker 服务，那么就只能通过 socket 的方式连接一个启动好的 Docker 服务，所以我们启动 Jenkins 容器的时候，我们把 docker socket 文件挂载在容器里，`-v /var/run/docker.sock:/var/run/docker.sock`。
+既然我们不会在 Jenkins Docker 容器中启动 Docker 服务，那么就只能通过 socket 的方式连接一个启动好的 Docker 服务，所以我们启动 Jenkins 容器的时候，我们把 docker socket 文件挂载在容器里，`-v /var/run/docker.sock:/var/run/docker.sock`。
 
 首先我们要安装 `Docker` 插件
 ![docker_configure](./run-jenkins-in-docker/WX20200901-212129@2x.png)
@@ -49,7 +49,7 @@ pipeline {
     triggers {
         pollSCM('*/1 * * * *')
     }
-    environment {  # 设置一些环境变量，写入配置中的预设值，用来执行 Pipeline 时的构建用
+    environment {  # 设置一些环境变量，写入配置中的预设值，用来执行 Pipeline 时的构建用
         DOCKER_REGISTER = credentials('jenkins-blog-docker-register')
         HOME = '.'
     }
@@ -141,6 +141,7 @@ pipeline {
 
 需要注意的是一点，如果需要在在 Docker Jenkins Pipeline 中运行构建的 Docker，例如构建测试，打包等，还是需要把 Docker 的套接字挂载到容器上。
 
+![pipeline](./run-jenkins-in-docker/1600264046.png)
 
 ## 安全问题
 
