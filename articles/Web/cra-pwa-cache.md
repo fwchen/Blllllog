@@ -15,3 +15,6 @@ CRA默认的 service worker 其实是自动生成的，`src/registerServiceWorke
 
 ![different_img](./cra-pwa-cache/WX20201026-232844@2x.png)
 
+简单的来说，GenerateSW 就是最简单的实现方法，且不需要写代码，但能写一些配置，不能写其他 service worker 的功能。
+
+而 Create Create App 的 webpack 脚本就是用的 GenerateSW。
