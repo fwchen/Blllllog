@@ -22,6 +22,7 @@ pipeline {
             agent {
                 docker {
                     image 'node:12.14.0-stretch'
+                    args '-u root'
                 }
             }
             steps {
