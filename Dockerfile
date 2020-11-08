@@ -1,8 +1,8 @@
-FROM node:latest as build
-COPY package.json pacakge-lock.json ./
+FROM node:12.19.0-alpine3.9 as build
+COPY package.json package-lock.json ./
 RUN npm install
 COPY . ./
-RUN ./node_modules/.bin/starfish render .
+RUN ./node_modules/.bin/starfish render $(pwd) --output="blog-static"
 
 FROM nginx:1.13.3-alpine
 COPY nginx.conf /etc/nginx/conf.d/default.conf
