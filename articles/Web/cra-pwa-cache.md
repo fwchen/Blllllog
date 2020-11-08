@@ -28,7 +28,7 @@ GenerateSW 生成出来的 service-worker.js，只有 workbox CacheFirst 的能�
 ![network_cache](./cra-pwa-cache/v2-4b701e2ce66409da2b94b6cddd2eb3e2_1440w.png)
 
 
-所以，相信这样的方法是满足不了大部分需求的，除非那真的是一个离线也能运行的很好的 web app，但如果真的想构建 offline app，CRA 的文档中也有很好大讨论，可以作为参考 [offline-first-considerations](https://create-react-app.dev/docs/making-a-progressive-web-app/#offline-first-considerations)
+所以，相信这样的方法是满足不了大部分需求的，除非那真的是一个离线也能运行的很好的 web app，但如果真的想构建 offline app，CRA 的文档中也有很好的讨论，可以作为参考 [offline-first-considerations](https://create-react-app.dev/docs/making-a-progressive-web-app/#offline-first-considerations)
 
 ## InjectManifest
 
@@ -111,7 +111,7 @@ self.addEventListener('activate', event => event.waitUntil(self.clients.claim())
 
  通过 workbox 配置，指定根路径 / 下的资源是 NetworkFirst 的，意味着这部分资源都是网络优先，有新的资源文件会先请求网络，而 /static/ 路径下，因为 CRA 打包出来都使用了 revving（文件带hash，确保新文件不会被缓存），所以设置为 Cache 优先。
 
- > revving: https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Caching_FAQ#%E6%94%B9%E8%BF%9B%E8%B5%84%E6%BA%90
+ > revving: [Web/HTTP/Caching_FAQ#改进资源](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Caching_FAQ#%E6%94%B9%E8%BF%9B%E8%B5%84%E6%BA%90)
 
 
 到这里，已经完成了 InjectManifest 的设置，但是别忘了要在 `index.js` 中打开 serviceWorker.register() 来注册 sw
