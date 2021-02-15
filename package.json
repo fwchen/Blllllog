@@ -4,7 +4,7 @@
   "description": "My Z Blog",
   "main": "index.js",
   "dependencies": {
-    "@starfishx/cli": "1.0.8",
+    "@starfishx/cli": "^1.0.9",
     "@starfishx/theme-hg": "0.0.20"
   },
   "devDependencies": {},
