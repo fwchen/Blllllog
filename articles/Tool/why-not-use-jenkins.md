@@ -17,3 +17,4 @@ Jenkins 最令人抓狂的地方不得不说是插件系统了，Jenkins 的设�
 ![crazy_plugin](./why-not-use-jenkins/WX20201109-100742@2x.png)
 
 ## Docker集成体验还不够好
+从 Docker 诞生以来，这个容器化技术一直都是越来越火的趋势，容器化技术有着几个十分诱人的优点，一致性，隔离，轻量，这些优化放在像 Jenkins 这样的持续工具上，实在是十分合适不过。只可惜 Jenkins 的 Docker 集成一直不够好，Jenkins 是通过插件来集成 Docker 的，但是很不幸的是，Jenkins 的插件仓库有不止一个的 Docker 插件，十分令人迷惑，而且使用起来不方便，需要配置，而且 pipeline 语法不够简介，非 pipeline 项目的配置又太过落后，总而言之，在 Jenkins 上集成 Docker 的体验还不够好，偶尔还会出现一些问题。相比较之下，像 CircleCI，TeamCity，Github CI 甚至 Gitlab CI 的 Docker 集成体验，也要比 Jenkins 要好上不少。
