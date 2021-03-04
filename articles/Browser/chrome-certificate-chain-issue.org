@@ -2,7 +2,7 @@
 #+DATE: 2018-08-04 16:26:54
 #+AUTHOR: 陳放為
 
-* 证书错误
+** 证书错误
 
 今天我用 Chromebook 打开我用 Let's Encrypt 签发 https 证书的一个网站，突然发现 Chrome 报证书错误。
 
@@ -10,18 +10,21 @@
 
 这是我用我的 MBP 查看的证书，证书链是有的
 
-[[image-url:./记一次-Chrome-无法取得证书链经过/41ecc0ab33cbdbc8e6cecccc0d973843]]
+[[image-url:./chrome-certificate-chain-issue/41ecc0ab33cbdbc8e6cecccc0d973843]]
 
 
 下面是我的 Chromebook 的截图
 
-[[image-url:./记一次-Chrome-无法取得证书链经过/b3fad00791e5ed510e11d1310e00c455]]
+[[image-url:./chrome-certificate-chain-issue/b3fad00791e5ed510e11d1310e00c455]]
 
-* 怎么解决的？
-过了一会自己好的，聊记一笔
+** 怎么解决的？
+神奇的是，这个证书错误竟然一会儿之后自动好了，再次打开后恢复了正常。网页上的证书显示也恢复了正常。
+
++怎么会这样？+
 
 
-* 可疑的点
+
+**a 可疑的点
 这里记几点，方便日后遇到相同的问题排查
 
 1. 在同一个服务器上的另一个站点昨天登上去的也是证书错误，然后今天好了，结合今天，可以推断出这个服务器上的证书一开始登录出问题，过一会儿就自动好
@@ -32,17 +35,10 @@
 9.18 / 2018 更新 补全了证书链，在 chromebook 上还是不起作用
 
 更新
-最后发现nginx上用的 cert.pem 证书，其实要用的是 fullchain.pem
+最后发现 nginx 上用的 cert.pem 证书，其实要用的是 fullchain.pem
 
 #+BEGIN_QUOTE
-参考
-https://certificatechain.io/
-
-http://www.tangzongchao.com/2016/02/24/HTTPS%E4%B8%AD%E8%AF%81%E4%B9%A6%E9%93%BE%E4%B8%8D%E5%AE%8C%E6%95%B4%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/
-
-https://blog.csdn.net/u011130578/article/details/76246863
-
-https://www.jianshu.com/p/46e48bc517d0
+PEM，一般是文本格式，可保存证书，可保存私钥。
 
 #+END_QUOTE
 
