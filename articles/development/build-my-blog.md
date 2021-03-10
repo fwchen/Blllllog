@@ -36,7 +36,7 @@ date: 2021-02-20 09:26:54
 ## 如何使用&构建
 使用 **Starfish** 建设博客的方法很简单，参考 [Github 仓库](https://github.com/fwchen/starfish.git) 的文档用书写博客，配置文件为 `config.yaml`，如下:
 
-```
+``` bash
 ├── articles
 │   ├── Algorithm
 │   │   └── boyer-moore.org
