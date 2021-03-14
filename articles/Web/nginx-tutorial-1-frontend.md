@@ -89,3 +89,6 @@ server {
 
 
 try_files 这个指令会让 nginx 按顺序查找文件，$uri 这个 URI 找不到的时候，就会返回 /index.html， 而 /index.html 是我们打包后的 应用 HTML 文件。
+
+
+https://github.com/fwchen/nginx-playground.git
