@@ -5,7 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "@starfishx/cli": "^1.0.13",
-    "@starfishx/theme-hg": "0.0.29"
+    "@starfishx/theme-hg": "0.0.30"
   },
   "devDependencies": {
     "set-blocking": "^2.0.0"
