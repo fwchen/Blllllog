@@ -18,7 +18,7 @@ https://github.com/gopasspw/gopass/blob/master/docs/setup.md
 
 其中 `Gopass` 会有自动检测更新的功能，但是里面自带的更新功能并不支持 `go get -u` 这种方式的自动更新，所以还是建议使用二进制安装包来安装，以后更新会比较方便
 
-需要注意的是，安装完 `GPG` 之后一定要检查是否能正确使用
+需要注意的是，安装完 `GPG` 之后一定要检查是否能正确使用，不然后面有问题的话错误信息会比较奇怪
 
 ```
 mkdir some-dir
@@ -29,7 +29,7 @@ git add foo
 git commit -S -m "test"
 ```
 
-在我的电脑里，需要额外配置一些 tty 
+如果上面通过 git 来签名 commit 没有问题，就可以继续了， 在我的电脑里，需要额外配置 tty 
 ```
 export GPG_TTY=$(tty)
 ```
@@ -39,15 +39,13 @@ export GPG_TTY=$(tty)
 git config --global user.signingkey xxxxx
 ```
 
-(使用`gpg2 --list-signatures`来获取signingkey)
+(使用`gpg2 --list-signatures`来获取`signingkey`)
 
 
 ## 使用
 使用的话，也是参照官方的文档 https://github.com/gopasspw/gopass/blob/master/docs/features.md 来进行初始化，添加密码等
 
-其实我使用下来发现 Gopass 在命令行行方面的还是有很多 Bug 的，有一些地方经常报错。
-
-如果是单机使用的话，问题倒不是很大，只是增删查找密钥就行
+其实我使用下来发现 Gopass 在命令行行方面的还是有很多 Bug 的，有一些地方经常报错。如果是单机使用的话，问题倒不是很大，只是增删查找密钥就行。
 
 但是如果你要保存在 git 上的话，尽量还是保存在私有仓库，正如官方提到的 https://github.com/gopasspw/gopass/blob/master/docs/security.md#gnu-privacy-guard 里讲到，`Gopass` 不保证用户名等元信息的加密，所以如果不小心放在了共有仓库上的话，一些信息还是有可能被泄露
 
@@ -80,9 +78,9 @@ gpg --import private.key
 ```
 
 ## 团队使用
-`Gopass` 这款工具在团队中使用也是可以的，但是正如官方的 [gnu-privacy-guard](https://github.com/gopasspw/gopass/blob/master/docs/security.md#gnu-privacy-guard) 中提到，为了保证这款密码管理器的 Integrity，密钥只能由一个私钥加密，所以在团队中使用的话，要不就是分发一个全部人都能使用的私钥，要不就由一个人来专门管理吗，其他人利用 recipients 开查看密码
+`Gopass` 这款工具在团队中使用也是可以的，但是正如官方的 [gnu-privacy-guard](https://github.com/gopasspw/gopass/blob/master/docs/security.md#gnu-privacy-guard) 中提到，为了保证这款密码管理器的 `Integrity`，密钥只能由一个私钥加密，所以在团队中使用的话，要不就是分发一个全部人都能使用的私钥，要不就由一个人来专门管理吗，其他人利用 recipients 开查看密码
 
-至于如何增添 recipients，还是有点麻烦
+至于如何增添 `recipients`，可以参考下面的命令:
 
 首先你需要找到你自己的公钥ID
 
@@ -124,4 +122,4 @@ gpg --armor --output 0xABC123456 --export user@example.com
 - [`terraform-provider-gopass`](https://github.com/camptocamp/terraform-provider-pass): a Terraform provider to interact with gopass
 - [chezmoi](https://github.com/twpayne/chezmoi): dotfile manager with gopass support
 
-还有 iOS 和 安卓的客户端 APP 可以下载，可以说是有十分丰富的功能了，最后，`Gopass` 这款密码管理器，应该会是喜欢的Geeks非常喜欢，不喜欢的人大概是因为这款密码管理器门槛太高，比较使用起来还是比较麻烦的，而且需要一点技术功底。
+还有 iOS 和 安卓的客户端 APP 可以下载，可以说是有十分丰富的功能了。最后，`Gopass` 这款密码管理器，应该会是喜欢的Geeks非常喜欢，不喜欢的人大概是因为这款密码管理器门槛太高，比较使用起来还是比较麻烦的，而且需要一点技术功底。
